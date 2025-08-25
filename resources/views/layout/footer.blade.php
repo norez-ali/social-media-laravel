@@ -113,7 +113,7 @@
 
   <script src="{{ asset('assets/js/plugin.js') }}"></script>
   <script src="{{ asset('assets/js/lightbox.js') }}"></script>
-  <script src="{{ assetw('assets/js/scripts.js') }}"></script>
+  <script src="{{ asset('assets/js/scripts.js') }}"></script>
   @stack('scripts')
   </body>
 
