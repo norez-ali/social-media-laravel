@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/feather.css') }}" />
     <!-- Favicon icon -->
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon.png') }}" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/images/favicon.png') }}" />
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/emoji.css') }}" />
