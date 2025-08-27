@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('video')->nullable();
             $table->string('visibility')->default('public');
+            $table->boolean('featured')->default(false);
             $table->timestamps();
         });
     }
