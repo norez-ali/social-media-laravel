@@ -8,6 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     {{-- <title>Sociala - Social Network App HTML Template</title> --}}
     @stack('title')
+    @vite('resources/css/app.css')
 
     <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/feather.css') }}" />
@@ -226,10 +227,24 @@
                                     class="toggle-icon"></span></label>
                         </div>
                     </div>
+                    <div class="flex justify-center mt-6">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+
+
+
                 </div>
             </div>
 
-            <a href="default-settings.html" class="p-0 ms-3 menu-icon"><img src="images/profile-4.png"
-                    alt="user" class="w40 mt--1" /></a>
+            {{-- user-avatar-down here --}}
+
+            <a href="" class="p-0 ms-3 menu-icon"><img src="assets/images/profile-4.png" alt="user"
+                    class="w40 mt--1" /></a>
         </div>
         <!-- navigation top -->

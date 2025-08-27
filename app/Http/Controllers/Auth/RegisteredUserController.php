@@ -17,9 +17,16 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create()
     {
-        return view('signup');
+        if (!Auth::check()) {
+            return redirect()->route('login'); // Redirect to home if already authenticated
+        }
+        return view('index');
+    }
+    public function signUp()
+    {
+        return view('auth.signup');
     }
 
     /**
@@ -43,8 +50,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
 
-        return redirect()->to('/');
+        return redirect()->route('login')->with('success', 'User is registered successfully. Please log in to your account.');
     }
 }

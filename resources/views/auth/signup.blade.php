@@ -22,6 +22,7 @@
     <body class="min-h-screen flex items-center justify-center">
         <div class="flex flex-col items-center justify-center w-full max-w-sm">
 
+
             <!-- Signup Card -->
             <div class="bg-white border border-gray-300 rounded-md w-full p-10 mb-4">
                 <h1 class="text-blue-600 text-4xl font-extrabold text-center mb-6">
