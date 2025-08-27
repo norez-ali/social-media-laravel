@@ -244,7 +244,7 @@
 
             {{-- user-avatar-down here --}}
 
-            <a href="" class="p-0 ms-3 menu-icon"><img src="assets/images/profile-4.png" alt="user"
-                    class="w40 mt--1" /></a>
+            <a href="{{ route('user.profile') }}" class="p-0 ms-3 menu-icon"><img src="assets/images/profile-4.png"
+                    alt="user" class="w40 mt--1" /></a>
         </div>
         <!-- navigation top -->

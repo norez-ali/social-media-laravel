@@ -27,7 +27,7 @@
                                  Groups</span></a>
                      </li>
                      <li>
-                         <a href="user-page.html" class="nav-content-bttn open-font"><i
+                         <a href="{{ route('user.profile') }}" class="nav-content-bttn open-font"><i
                                  class="feather-user btn-round-md bg-primary-gradiant me-3"></i><span>Author Profile
                              </span></a>
                      </li>
