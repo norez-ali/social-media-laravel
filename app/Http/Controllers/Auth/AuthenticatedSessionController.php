@@ -28,6 +28,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // return redirect()->route(config('app.redirect_after_login'));
         return redirect()->route('home');
     }
 
