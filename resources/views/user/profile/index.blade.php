@@ -2,7 +2,7 @@
 @section('content')
     <!-- main content -->
     @push('title')
-        <title>Social. user-profile</title>
+        <title>Sociala. user-profile</title>
     @endpush
     <div class="main-content right-chat-active">
 
@@ -11,20 +11,72 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card w-100 border-0 p-0 bg-white shadow-xss rounded-xxl">
-                            <div class="card-body h250 p-0 rounded-xxl overflow-hidden m-3"><img src="images/u-bg.jpg"
-                                    alt="image"></div>
+                            <div class="card-body h250 p-0 rounded-xxl overflow-hidden m-3"><img
+                                    src="{{ asset('assets/images/u-bg.jpg') }}" alt="image"></div>
                             <div class="card-body p-0 position-relative">
                                 <figure class="avatar position-absolute w100 z-index-1" style="top:-40px; left: 30px;"><img
-                                        src="images/user-12.png" alt="image"
+                                        src="{{ asset('assets/images/user-12.png') }}" alt="image"
                                         class="float-right p-1 bg-white rounded-circle w-100"></figure>
-                                <h4 class="fw-700 font-sm mt-2 mb-lg-5 mb-4 pl-15">Mohannad Zitoun <span
-                                        class="fw-500 font-xssss text-grey-500 mt-1 mb-3 d-block">support@gmail.com</span>
+                                <h4 class="fw-700 font-sm mt-2 mb-lg-5 mb-4 pl-15">{{ auth_user()->name }} <span
+                                        class="fw-500 font-xssss text-grey-500 mt-1 mb-3 d-block">{{ auth_user()->email }}</span>
                                 </h4>
                                 <div
                                     class="d-flex align-items-center justify-content-center position-absolute-md right-15 top-0 me-2">
-                                    <a href="#"
-                                        class="d-none d-lg-block bg-success p-3 z-index-1 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3">Add
-                                        Friend</a>
+
+                                    @if (auth()->id() === auth_user()->id)
+                                        {{-- If logged-in user is viewing their own profile --}}
+                                        <button onclick="toggleEditCard(true)"
+                                            class="d-none d-lg-block bg-success p-3 z-index-1 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3">
+                                            Edit Profile
+                                        </button>
+                                    @else
+                                        {{-- If viewing someone else’s profile --}}
+                                        <a href="#"
+                                            class="d-none d-lg-block bg-success p-3 z-index-1 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3">
+                                            Add Friend
+                                        </a>
+                                    @endif
+                                    <!-- Overlay + Card -->
+                                    <div id="editCardWrapper"
+                                        class="hidden fixed inset-0 flex items-center justify-center  bg-opacity-50 backdrop-blur-sm z-50">
+
+                                        <!-- Card -->
+                                        <div id="editCard"
+                                            class="bg-white rounded-2xl shadow-lg w-full max-w-md p-6 relative transform transition-all duration-300 scale-95">
+
+                                            <!-- Close button -->
+                                            <button onclick="toggleEditCard(false)"
+                                                class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold">
+                                                ✕
+                                            </button>
+
+                                            <!-- Profile Info -->
+                                            <div class="flex items-center gap-4 mb-4">
+                                                <img src="{{ asset('assets/images/user-12.png') }}" alt="Profile"
+                                                    class="w-16 h-16 rounded-full border">
+                                                <div>
+                                                    <h3 class="text-lg font-bold">Your Name</h3>
+                                                    <p class="text-gray-500">Edit your details below</p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Edit Form -->
+                                            <form>
+                                                <label class="block mb-2 text-sm font-semibold">Name</label>
+                                                <input type="text" class="w-full border rounded-lg px-3 py-2 mb-4">
+
+                                                <label class="block mb-2 text-sm font-semibold">Email</label>
+                                                <input type="email" class="w-full border rounded-lg px-3 py-2 mb-4">
+
+                                                <button type="button" onclick="toggleEditCard(false)"
+                                                    class="bg-green-600 text-white px-4 py-2 rounded-lg w-full">
+                                                    Save
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+
                                     <a href="#"
                                         class="d-none d-lg-block bg-greylight btn-round-lg ms-2 rounded-3 text-grey-700"><i
                                             class="feather-mail font-md"></i></a>
@@ -96,7 +148,8 @@
                                 <div class="row">
                                     <div class="col-3">
                                         <div class="chart-container w50 h50">
-                                            <div class="chart position-relative" data-percent="78" data-bar-color="#a7d212">
+                                            <div class="chart position-relative" data-percent="78"
+                                                data-bar-color="#a7d212">
                                                 <span class="percent fw-700 font-xsss" data-after="%">78</span>
                                             </div>
                                         </div>
@@ -541,4 +594,23 @@
         </div>
     </div>
     <!-- main content -->
+    @push('scripts')
+        <script>
+            function toggleEditCard(show) {
+                const wrapper = document.getElementById("editCardWrapper");
+
+                if (show) {
+                    wrapper.classList.remove("hidden");
+                    setTimeout(() => {
+                        wrapper.classList.add("opacity-100");
+                        wrapper.querySelector("#editCard").classList.remove("scale-95");
+                    }, 10);
+                } else {
+                    wrapper.classList.remove("opacity-100");
+                    wrapper.querySelector("#editCard").classList.add("scale-95");
+                    setTimeout(() => wrapper.classList.add("hidden"), 300); // wait fade-out
+                }
+            }
+        </script>
+    @endpush
 @endsection

@@ -19,10 +19,11 @@ class RegisteredUserController extends Controller
      */
     public function create()
     {
+
         if (!Auth::check()) {
             return redirect()->route('login'); // Redirect to home if already authenticated
         }
-        return view('index');
+        return redirect()->route('home');
     }
     public function signUp()
     {
