@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User\Profile;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -47,5 +48,19 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::created(function ($user) {
+            $user->profile()->create([
+                'user_id' => $user->id,
+            ]);
+        });
     }
 }

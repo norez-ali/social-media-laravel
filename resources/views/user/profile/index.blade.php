@@ -11,17 +11,37 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card w-100 border-0 p-0 bg-white shadow-xss rounded-xxl">
-                            <div class="card-body h250 p-0 rounded-xxl overflow-hidden m-3"><img
-                                    src="{{ asset('assets/images/u-bg.jpg') }}" alt="image"></div>
+                            <div class="card-body h250 p-0 rounded-xxl overflow-hidden m-3">
+                                @if ($user->profile->cover_photo)
+                                    <img src="{{ asset('images/cover_photos/' . $user->profile->cover_photo) }}"
+                                        alt="Cover Photo" class="w-full h-[250px] rounded-xl border object-cover">
+                                @else
+                                    <img src="{{ asset('assets/images/u-bg.jpg') }}" alt="Cover Photo"
+                                        class="w-full h-[200px] rounded-xl border object-cover">
+                                @endif
+                            </div>
                             <div class="card-body p-0 position-relative">
-                                <figure class="avatar position-absolute w100 z-index-1" style="top:-40px; left: 30px;"><img
-                                        src="{{ asset('assets/images/user-12.png') }}" alt="image"
-                                        class="float-right p-1 bg-white rounded-circle w-100"></figure>
+                                <figure class="avatar position-absolute w100 z-index-1" style="top:-40px; left: 30px;">
+                                    @if ($user->profile->profile_photo)
+                                        <img src="{{ asset('images/profile_photos/' . $user->profile->profile_photo) }}"
+                                            alt="Profile"
+                                            class="float-right p-1 bg-white rounded-circle object-top object-cover"
+                                            style="width:100px; height:100px;">
+                                    @else
+                                        <img src="{{ asset('assets/images/user-12.png') }}" alt="Profile"
+                                            class="float-right p-1 bg-white rounded-circle w-100  object-cover ">
+                                    @endif
+                                </figure>
                                 <h4 class="fw-700 font-sm mt-2 mb-lg-5 mb-4 pl-15">{{ auth_user()->name }} <span
                                         class="fw-500 font-xssss text-grey-500 mt-1 mb-3 d-block">{{ auth_user()->email }}</span>
                                 </h4>
                                 <div
                                     class="d-flex align-items-center justify-content-center position-absolute-md right-15 top-0 me-2">
+                                    @if (session('status'))
+                                        <div class="mb-4 p-3 rounded-lg bg-green-100 text-green-800 text-sm">
+                                            {{ session('status') }}
+                                        </div>
+                                    @endif
 
                                     @if (auth()->id() === auth_user()->id)
                                         {{-- If logged-in user is viewing their own profile --}}
@@ -36,13 +56,13 @@
                                             Add Friend
                                         </a>
                                     @endif
-                                    <!-- Overlay + Card -->
+                                    <!-- Edit Profile Card Starts here -->
                                     <div id="editCardWrapper"
-                                        class="hidden fixed inset-0 flex items-center justify-center  bg-opacity-50 backdrop-blur-sm z-50">
+                                        class="hidden fixed inset-0 flex items-start justify-center bg-opacity-50 backdrop-blur-sm z-50 overflow-y-auto p-6">
 
                                         <!-- Card -->
                                         <div id="editCard"
-                                            class="bg-white rounded-2xl shadow-lg w-full max-w-md p-6 relative transform transition-all duration-300 scale-95">
+                                            class="bg-white rounded-2xl shadow-lg w-full max-w-md p-6 relative transform transition-all duration-300 scale-95 overflow-y-auto max-h-[90vh]">
 
                                             <!-- Close button -->
                                             <button onclick="toggleEditCard(false)"
@@ -51,30 +71,106 @@
                                             </button>
 
                                             <!-- Profile Info -->
-                                            <div class="flex items-center gap-4 mb-4">
-                                                <img src="{{ asset('assets/images/user-12.png') }}" alt="Profile"
-                                                    class="w-16 h-16 rounded-full border">
-                                                <div>
-                                                    <h3 class="text-lg font-bold">Your Name</h3>
-                                                    <p class="text-gray-500">Edit your details below</p>
-                                                </div>
+                                            <div class="profile_heading">
+                                                <p class="text-xl font-bold text-center">Edit Profile</p>
+                                                <hr>
                                             </div>
+                                            <div class="profile_photo m-4">
+                                                <p class=" font-bold text-xl ">Profile Photo</p>
+                                                @if ($user->profile->profile_photo)
+                                                    <img src="{{ asset('images/profile_photos/' . $user->profile->profile_photo) }}"
+                                                        alt="Profile"
+                                                        class="w-40 h-40 rounded-full border mx-auto block object-top object-cover">
+                                                @else
+                                                    <img src="{{ asset('assets/images/user-12.png') }}" alt="Profile"
+                                                        class="w-40 rounded-full border mx-auto block">
+                                                @endif
+                                                <form action="{{ route('user.updateProfile') }}" method="POST"
+                                                    enctype="multipart/form-data"
+                                                    class="flex m-2 space-x-2 items-center justify-center">
+                                                    @csrf
+                                                    @method('PUT')
 
-                                            <!-- Edit Form -->
-                                            <form>
-                                                <label class="block mb-2 text-sm font-semibold">Name</label>
-                                                <input type="text" class="w-full border rounded-lg px-3 py-2 mb-4">
+                                                    <!-- Hidden file input -->
+                                                    <input type="file" id="imageInput" name="profile_photo"
+                                                        accept="image/*" class="hidden">
 
-                                                <label class="block mb-2 text-sm font-semibold">Email</label>
-                                                <input type="email" class="w-full border rounded-lg px-3 py-2 mb-4">
+                                                    <!-- Custom choose file button -->
+                                                    <label for="imageInput"
+                                                        class="h-10 px-6 flex items-center justify-center text-sm font-medium bg-white text-blue-500 border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-100">
+                                                        Choose File
+                                                    </label>
 
-                                                <button type="button" onclick="toggleEditCard(false)"
-                                                    class="bg-green-600 text-white px-4 py-2 rounded-lg w-full">
-                                                    Save
-                                                </button>
-                                            </form>
+                                                    <!-- Upload button -->
+                                                    <button type="submit"
+                                                        class="h-10 px-4 text-sm font-medium bg-blue-500 text-white border border-blue-500 rounded-xl hover:bg-blue-600">
+                                                        Upload
+                                                    </button>
+                                                </form>
+
+
+                                            </div>
+                                            <div class="cover_photo m-4">
+                                                <p class="font-bold text-xl">Cover Photo</p>
+                                                @if ($user->profile->cover_photo)
+                                                    <img src="{{ asset('images/cover_photos/' . $user->profile->cover_photo) }}"
+                                                        alt="Cover Photo"
+                                                        class="w-full h-40 rounded-xl border object-cover">
+                                                @else
+                                                    <img src="{{ asset('assets/images/u-bg.jpg') }}" alt="Cover Photo"
+                                                        class="w-full h-40 rounded-xl border object-cover">
+                                                @endif
+                                                <form action="{{ route('user.updateProfile') }}" method="POST"
+                                                    enctype="multipart/form-data"
+                                                    class="flex m-2 space-x-2 items-center justify-center">
+                                                    @csrf
+                                                    @method('PUT')
+
+                                                    <!-- Hidden file input -->
+                                                    <input type="file" id="cover_photo" name="cover_photo"
+                                                        accept="image/*" class="hidden">
+
+                                                    <!-- Custom choose file button -->
+                                                    <label for="cover_photo"
+                                                        class="h-10 px-6 flex items-center justify-center text-sm font-medium bg-white text-blue-500 border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-100">
+                                                        Choose File
+                                                    </label>
+
+                                                    <!-- Upload button -->
+                                                    <button type="submit"
+                                                        class="h-10 px-4 text-sm font-medium bg-blue-500 text-white border border-blue-500 rounded-xl hover:bg-blue-600">
+                                                        Upload
+                                                    </button>
+                                                </form>
+
+                                            </div>
+                                            <div class="bio m-4">
+                                                <p class="font-bold text-xl">Bio</p>
+
+                                                <form action="{{ route('user.updateProfile') }}" method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+
+                                                    <textarea name="bio" id="bio" placeholder="Describe yourself"
+                                                        class="w-full min-h-[120px] border rounded-lg px-3 py-2 mt-2">{{ $user->profile->bio }}</textarea>
+
+                                                    <div class="flex justify-end mt-3">
+                                                        <button type="submit"
+                                                            class="h-10 px-6 text-sm font-medium bg-blue-500 text-white border border-blue-500 rounded-xl hover:bg-blue-600">
+                                                            Save Bio
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="featured m-4">
+                                                <p class="font-bold text-xl">Featured</p>
+                                                <img src="{{ asset('assets/images/featured.png') }}" alt=""
+                                                    class="w-full h-40 object-top rounded-xl  object-cover">
+
+                                            </div>
                                         </div>
                                     </div>
+                                    {{-- The Edit profile Card Ends Here --}}
 
 
                                     <a href="#"
