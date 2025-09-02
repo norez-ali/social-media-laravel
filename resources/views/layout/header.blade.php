@@ -8,7 +8,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     {{-- <title>Sociala - Social Network App HTML Template</title> --}}
     @stack('title')
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/feather.css') }}" />

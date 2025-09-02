@@ -68,7 +68,15 @@ class ProfileController extends Controller
         $profile->fill($validated);
         $profile->user_id = $user->id;  // make sure relation is set
         $profile->save();
-
-        return back()->with('status', 'Profile updated successfully!');
+        return response()->json([
+            'profile_photo' => $profile->profile_photo ? asset('images/profile_photos/' . $profile->profile_photo) : null,
+            'cover_photo'  => $profile->cover_photo ? asset('images/cover_photos/' . $profile->cover_photo) : null,
+            'gender'       => $profile->gender,
+            'location'     => $profile->location,
+            'username'     => $profile->username,
+            'education'    => $profile->education,
+            'work'         => $profile->work,
+            'bio'          => $profile->bio,
+        ]);
     }
 }
