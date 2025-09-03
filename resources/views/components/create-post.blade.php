@@ -1,4 +1,4 @@
-  <div class="card w-100 shadow-xss rounded-xxl border-0 ps-4 pt-4 pe-4 pb-3 mb-3 mt-3">
+  <div class="card w-100 shadow-xss rounded-xxl border-0 ps-4 pt-4 pe-4 pb-3  mt-3">
       <div class="card-body p-0">
           <button type="button" onclick="toggleCreatePost(true)"
               class="font-xssss fw-600 text-grey-500 card-body p-0 d-flex align-items-center">
@@ -140,14 +140,7 @@
       </div>
   </div>
 
-  <!-- JS -->
 
-
-
-
-
-
-  <!-- JS for Toggle -->
 
   @push('scripts')
       <script>

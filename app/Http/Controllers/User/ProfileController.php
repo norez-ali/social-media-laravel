@@ -13,7 +13,7 @@ class ProfileController extends Controller
 {
     public function index()
     {
-        $user = User::with('profile')->find(Auth::id());
+        $user = User::with('profile', 'posts')->find(Auth::id());
 
         return view('user.profile.index', get_defined_vars());
     }
