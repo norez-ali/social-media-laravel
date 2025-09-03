@@ -10,7 +10,7 @@
       <div class="card-body p-0 mt-3 position-relative">
           <figure class="avatar position-absolute ms-2 mt-1 top-5">
               @if (auth_user()->profile->profile_photo)
-                  <img src="{{ asset('images/profile_photos/' . auth_user()->profile->profile_photo) }}" alt="image"
+                  <img src="{{ asset('storage/profile_photos/' . auth_user()->profile->profile_photo) }}" alt="image"
                       class="profile-photo shadow-sm rounded-circle"
                       style="width:30px; height:30px; object-fit:cover; object-position:top;" />
               @else
@@ -96,7 +96,7 @@
               <!-- Profile + Name -->
               <div class="flex items-center space-x-3">
                   @if (auth_user()->profile->profile_photo)
-                      <img src="{{ asset('images/profile_photos/' . auth_user()->profile->profile_photo) }}"
+                      <img src="{{ asset('storage/profile_photos/' . auth_user()->profile->profile_photo) }}"
                           alt="Profile" class="w-12 h-12 rounded-full object-cover object-top border shadow">
                   @else
                       <img src="{{ asset('assets/images/user-12.png') }}" alt="Profile"
@@ -189,7 +189,7 @@
                       contentType: false,
                       processData: false,
                       success: function(response) {
-                          alert(response.message); // show success (replace with a nice toast)
+
                           toggleCreatePost(false); // close popup
                           $("form[action='{{ route('user.create.post') }}']")[0]
                               .reset(); // reset form

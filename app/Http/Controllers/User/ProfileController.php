@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\User\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -18,9 +19,6 @@ class ProfileController extends Controller
     }
     public function updateProfile(Request $request)
     {
-
-
-
         $user = auth_user();
 
         $validated = $request->validate([
@@ -36,47 +34,52 @@ class ProfileController extends Controller
 
         $profile = $user->profile ?? new Profile(['user_id' => $user->id]);
 
-        // ✅ Handle profile photo
+        // Handle profile photo
         if ($request->hasFile('profile_photo')) {
-            if ($profile->profile_photo && file_exists(public_path('images/profile_photos/' . $profile->profile_photo))) {
-                unlink(public_path('images/profile_photos/' . $profile->profile_photo));
+            // Delete old profile photo if exists
+            if ($profile->profile_photo && Storage::disk('public')->exists('profile_photos/' . $profile->profile_photo)) {
+                Storage::disk('public')->delete('profile_photos/' . $profile->profile_photo);
             }
 
-            $image = $request->file('profile_photo');
-            $filename = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('images/profile_photos'), $filename);
-            $validated['profile_photo'] = $filename;
+            // Store new profile photo
+            $profilePhoto = $request->file('profile_photo');
+            $profilePhotoName = time() . '_profile_' . uniqid() . '.' . $profilePhoto->getClientOriginalExtension();
+            $profilePhoto->storeAs('profile_photos', $profilePhotoName, 'public');
+            $validated['profile_photo'] = $profilePhotoName;
         } else {
             unset($validated['profile_photo']);
         }
 
-        // ✅ Handle cover photo
+        // Handle cover photo
         if ($request->hasFile('cover_photo')) {
-            if ($profile->cover_photo && file_exists(public_path('images/cover_photos/' . $profile->cover_photo))) {
-                unlink(public_path('images/cover_photos/' . $profile->cover_photo));
+            // Delete old cover photo if exists
+            if ($profile->cover_photo && Storage::disk('public')->exists('cover_photos/' . $profile->cover_photo)) {
+                Storage::disk('public')->delete('cover_photos/' . $profile->cover_photo);
             }
 
-            $image = $request->file('cover_photo');
-            $filename = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('images/cover_photos'), $filename);
-            $validated['cover_photo'] = $filename;
+            // Store new cover photo
+            $coverPhoto = $request->file('cover_photo');
+            $coverPhotoName = time() . '_cover_' . uniqid() . '.' . $coverPhoto->getClientOriginalExtension();
+            $coverPhoto->storeAs('cover_photos', $coverPhotoName, 'public');
+            $validated['cover_photo'] = $coverPhotoName;
         } else {
             unset($validated['cover_photo']);
         }
 
-        // ✅ Create or Update
+        // Create or Update profile
         $profile->fill($validated);
-        $profile->user_id = $user->id;  // make sure relation is set
+        $profile->user_id = $user->id;
         $profile->save();
+
         return response()->json([
-            'profile_photo' => $profile->profile_photo ? asset('images/profile_photos/' . $profile->profile_photo) : null,
-            'cover_photo'  => $profile->cover_photo ? asset('images/cover_photos/' . $profile->cover_photo) : null,
-            'gender'       => $profile->gender,
-            'location'     => $profile->location,
-            'username'     => $profile->username,
-            'education'    => $profile->education,
-            'work'         => $profile->work,
-            'bio'          => $profile->bio,
+            'profile_photo' => $profile->profile_photo ? asset('storage/profile_photos/' . $profile->profile_photo) : null,
+            'cover_photo' => $profile->cover_photo ? asset('storage/cover_photos/' . $profile->cover_photo) : null,
+            'gender'        => $profile->gender,
+            'location'      => $profile->location,
+            'username'      => $profile->username,
+            'education'     => $profile->education,
+            'work'          => $profile->work,
+            'bio'           => $profile->bio,
         ]);
     }
 }

@@ -14,7 +14,7 @@
                             <div class="card-body h250 p-0 rounded-xxl overflow-hidden m-3 relative">
                                 <!-- Cover Image -->
                                 @if ($user->profile->cover_photo)
-                                    <img src="{{ asset('images/cover_photos/' . $user->profile->cover_photo) }}"
+                                    <img src="{{ asset('storage/cover_photos/' . $user->profile->cover_photo) }}"
                                         alt="Cover Photo" class="cover-photo w-full h-[250px] rounded-xl border object-cover">
                                 @else
                                     <img src="{{ asset('assets/images/u-bg.jpg') }}" alt="Cover Photo"
@@ -44,7 +44,7 @@
                                 <figure class="avatar position-absolute w100 z-index-1" style="top:-40px; left: 30px;">
 
                                     @if ($user->profile->profile_photo)
-                                        <img src="{{ asset('images/profile_photos/' . $user->profile->profile_photo) }}"
+                                        <img src="{{ asset('storage/profile_photos/' . $user->profile->profile_photo) }}"
                                             alt="Profile"
                                             class="profile-photo p-1 bg-white rounded-circle object-top object-cover"
                                             style="width:100px; height:100px;">
@@ -118,7 +118,7 @@
                                             <div class="profile_photo m-4">
                                                 <p class=" font-bold text-xl ">Profile Photo</p>
                                                 @if ($user->profile->profile_photo)
-                                                    <img src="{{ asset('images/profile_photos/' . $user->profile->profile_photo) }}"
+                                                    <img src="{{ asset('storage/profile_photos/' . $user->profile->profile_photo) }}"
                                                         alt="Profile"
                                                         class=" profile-photo w-40 h-40 rounded-full border mx-auto block object-top object-cover">
                                                 @else
@@ -153,7 +153,7 @@
                                             <div class="cover_photo m-4">
                                                 <p class="font-bold text-xl">Cover Photo</p>
                                                 @if ($user->profile->cover_photo)
-                                                    <img src="{{ asset('images/cover_photos/' . $user->profile->cover_photo) }}"
+                                                    <img src="{{ asset('storage/cover_photos/' . $user->profile->cover_photo) }}"
                                                         alt="Cover Photo"
                                                         class="cover-photo w-full h-40 rounded-xl border object-cover">
                                                 @else
