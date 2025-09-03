@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User\Post;
 use App\Models\User\Profile;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -53,6 +54,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function profile()
     {
         return $this->hasOne(Profile::class);
+    }
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
     }
 
     protected static function booted(): void

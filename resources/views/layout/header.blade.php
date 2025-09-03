@@ -50,7 +50,7 @@
                         class="bg-grey border-0 lh-32 pt-2 pb-2 ps-5 pe-3 font-xssss fw-500 rounded-xl w350 theme-dark-bg" />
                 </div>
             </form>
-            <a href="default.html" class="p-2 text-center ms-3 menu-icon center-menu-icon"><i
+            <a href="{{ route('home') }}" class="p-2 text-center ms-3 menu-icon center-menu-icon"><i
                     class="feather-home font-lg alert-primary btn-round-lg theme-dark-bg text-current"></i></a>
             <a href="default-storie.html" class="p-2 text-center ms-0 menu-icon center-menu-icon"><i
                     class="feather-zap font-lg bg-greylight btn-round-lg theme-dark-bg text-grey-500"></i></a>
@@ -245,9 +245,14 @@
 
             {{-- user-avatar-down here --}}
 
-
             <a href="{{ route('user.profile') }}" class="p-0 ms-3 menu-icon">
-                <img src="{{ asset('assets/images/profile-4.png') }}" alt="user" class="w40 mt--1" />
+                @if (auth_user()->profile->profile_photo)
+                    <img src="{{ asset('images/profile_photos/' . auth_user()->profile->profile_photo) }}"
+                        alt="image" class="profile-photo shadow-sm rounded-circle"
+                        style="width:40px; height:40px; object-fit:cover; object-position:top;" />
+                @else
+                    <img src="{{ asset('assets/images/profile-4.png') }}" alt="user" class="w40 mt--1" />
+                @endif
             </a>
 
         </div>

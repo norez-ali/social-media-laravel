@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->constrained()->onDelete('cascade');
             $table->text('content');
-            $table->string('image')->nullable();
-            $table->string('video')->nullable();
+            $table->string('media')->nullable();
+            $table->enum('media_type', ['image', 'video'])->nullable();
             $table->string('visibility')->default('public');
             $table->boolean('featured')->default(false);
             $table->timestamps();

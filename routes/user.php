@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\User\PostController;
 use App\Http\Controllers\User\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -7,4 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('user-profile', [ProfileController::class, 'index'])->name('user.profile');
     Route::put('update-profile', [ProfileController::class, 'updateProfile'])->name('user.updateProfile');
+
+    // Route for creating a post
+    Route::post('create-post', [PostController::class, 'store'])->name('user.create.post');
 });
