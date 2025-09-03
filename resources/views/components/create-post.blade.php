@@ -90,7 +90,7 @@
 
           <!-- Create Post Form -->
           <form action="{{ route('user.create.post') }}" method="POST" enctype="multipart/form-data"
-              class="flex flex-col gap-4">
+              id="createPostForm" class="flex flex-col gap-4">
               @csrf
 
               <!-- Profile + Name -->
@@ -176,36 +176,35 @@
               document.getElementById('createPostWrapper').classList.toggle('hidden', !show);
           }
           //   ajax
-          $(document).ready(function() {
-              $("form[action='{{ route('user.create.post') }}']").on("submit", function(e) {
-                  e.preventDefault(); // stop normal form submission
+          $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
 
-                  let formData = new FormData(this); // handle text + files
+          $('#createPostForm').on('submit', function(e) {
+              e.preventDefault();
 
-                  $.ajax({
-                      url: "{{ route('user.create.post') }}",
-                      method: "POST",
-                      data: formData,
-                      contentType: false,
-                      processData: false,
-                      success: function(response) {
+              let formData = new FormData(this);
 
-                          toggleCreatePost(false); // close popup
-                          $("form[action='{{ route('user.create.post') }}']")[0]
-                              .reset(); // reset form
-                          $("#filePreview").empty(); // clear previews
-                      },
-                      error: function(xhr) {
-                          if (xhr.status === 422) {
-                              // validation errors
-                              let errors = xhr.responseJSON.errors;
-                              let messages = Object.values(errors).flat().join("\n");
-                              alert("Validation Error:\n" + messages);
-                          } else {
-                              alert("Something went wrong. Try again!");
-                          }
-                      }
-                  });
+              $.ajax({
+                  url: $(this).attr('action'),
+                  type: "POST",
+                  data: formData,
+                  contentType: false,
+                  processData: false,
+                  success: function(response) {
+                      console.log(response);
+                      $('#createPostForm')[0].reset();
+                      $('#filePreview').empty();
+                      toggleCreatePost(false);
+
+                      // Optionally: append new post dynamically to the page
+                  },
+                  error: function(xhr) {
+                      console.error(xhr.responseText);
+                      alert('Error: ' + xhr.responseJSON.message);
+                  }
               });
           });
       </script>

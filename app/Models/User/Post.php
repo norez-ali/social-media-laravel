@@ -15,6 +15,10 @@ class Post extends Model
         'visibility',
         'featured',
     ];
+    protected $casts = [
+        'media' => 'array',
+        'featured' => 'boolean',
+    ];
 
     public function user()
     {

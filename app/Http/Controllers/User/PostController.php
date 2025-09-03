@@ -13,71 +13,46 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated.'], 401);
+        }
 
-        // Validation
         $request->validate([
-            'content' => 'nullable|string|max:1000',
-            'media.*' => 'nullable|mimes:jpg,jpeg,png,gif,bmp,svg,webp,mp4,mov,avi,mkv,webm,wmv,flv,mpeg|max:10240', // 10MB
+            'content'   => 'nullable|string|max:1000',
+            'media.*'   => 'nullable|mimes:jpg,jpeg,png,gif,bmp,svg,webp,mp4,mov,avi,mkv,webm,wmv,flv,mpeg|max:10240',
+            'visibility' => 'nullable|string',
+            'featured'  => 'nullable|boolean',
         ]);
 
-        // Create post
-        $post = new Post();
-        $post->user_id = $user->id;
-        $post->content = $request->content ?? null;
-        $post->save();
+        $mediaData = [];
 
-        $mediaFiles = [];
-
-        // Handle media if uploaded
         if ($request->hasFile('media')) {
-            foreach ($request->file('media') as $file) {
-                // Get file extension + media type
-                $extension = strtolower($file->getClientOriginalExtension());
-                $mediaType = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp']) ? 'image' : 'video';
+            foreach ($request->file('media') as $index => $file) {
+                $extension  = strtolower($file->getClientOriginalExtension());
+                $mediaType  = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp']) ? 'image' : 'video';
+                $filename   = time() . '_' . uniqid() . '.' . $extension;
+                $filePath   = $file->storeAs('posts', $filename, 'public');
 
-                // Unique file name
-                $filename = time() . '_' . uniqid() . '.' . $extension;
-
-                // Store file in storage/app/public/posts folder
-                $file->storeAs('posts', $filename, 'public');
-
-                // Add to media files array
-                $mediaFiles[] = [
-                    'filename' => $filename,
-                    'type' => $mediaType,
-                    'url' => asset('storage/posts/' . $filename)
+                $mediaData[] = [
+                    'filename'   => $filename,
+                    'file_path'  => Storage::url($filePath),
+                    'media_type' => $mediaType,
                 ];
-
-                // If you want to save only the first media to the post table
-                if (empty($post->media)) {
-                    $post->media = $filename;
-                    $post->media_type = $mediaType;
-                    $post->save();
-                }
-
-                // Alternative: Create PostMedia records for each file
-                // PostMedia::create([
-                //     'post_id' => $post->id,
-                //     'filename' => $filename,
-                //     'media_type' => $mediaType,
-                //     'file_path' => 'posts/' . $filename
-                // ]);
             }
         }
 
+        $post = Post::create([
+            'user_id'    => $user->id,
+            'content'    => $request->input('content'),
+            'media'      => $mediaData,
+            'media_type' => $mediaData[0]['media_type'] ?? null,
+            'visibility' => $request->input('visibility', 'public'),
+            'featured'   => $request->boolean('featured', false),
+        ]);
+
         return response()->json([
             'success' => true,
-            'post' => [
-                'id' => $post->id,
-                'user_id' => $post->user_id,
-                'content' => $post->content,
-                'media' => $post->media,
-                'media_type' => $post->media_type,
-                'media_url' => $post->media ? asset('posts/' . $post->media) : null,
-                'all_media' => $mediaFiles, // All uploaded media files
-                'created_at' => $post->created_at,
-                'updated_at' => $post->updated_at,
-            ]
+            'post'    => $post,
         ]);
     }
 }

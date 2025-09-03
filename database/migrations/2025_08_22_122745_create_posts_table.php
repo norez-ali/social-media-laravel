@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->constrained()->onDelete('cascade');
-            $table->text('content');
-            $table->json('media')->nullable();
+            $table->text('content')->nullable();
+            $table->string('media')->nullable();
             $table->enum('media_type', ['image', 'video'])->nullable();
             $table->string('visibility')->default('public');
             $table->boolean('featured')->default(false);
