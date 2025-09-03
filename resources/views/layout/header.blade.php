@@ -245,7 +245,7 @@
 
             {{-- user-avatar-down here --}}
 
-            <a href="{{ route('user.profile') }}" class="p-0 ms-3 menu-icon">
+            <a href="{{ route('user.profile', auth_user()->id) }}" class="p-0 ms-3 menu-icon">
                 @if (auth_user()->profile->profile_photo)
                     <img src="{{ asset('storage/profile_photos/' . auth_user()->profile->profile_photo) }}"
                         alt="image" class="profile-photo shadow-sm rounded-circle"

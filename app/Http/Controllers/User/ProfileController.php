@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    public function index()
+    public function index($id)
     {
-        $user = User::with('profile', 'posts')->find(Auth::id());
+        $user = User::with('profile', 'posts')->find($id);
 
         return view('user.profile.index', get_defined_vars());
     }

@@ -27,7 +27,7 @@
                                  Groups</span></a>
                      </li>
                      <li>
-                         <a href="{{ route('user.profile') }}" class="nav-content-bttn open-font"><i
+                         <a href="{{ route('user.profile', auth_user()->id) }}" class="nav-content-bttn open-font"><i
                                  class="feather-user btn-round-md bg-primary-gradiant me-3"></i><span>Author Profile
                              </span></a>
                      </li>

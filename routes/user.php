@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 // all the routes related to user functionalities will be here
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('user-profile', [ProfileController::class, 'index'])->name('user.profile');
+    Route::get('user-profile/{id}', [ProfileController::class, 'index'])->name('user.profile');
     Route::put('update-profile', [ProfileController::class, 'updateProfile'])->name('user.updateProfile');
 
     // Route for creating a post

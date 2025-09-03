@@ -183,23 +183,22 @@
                             </div>
                         </div>
 
-                        @include('components.create-post')
+                        @include('components.create-post', ['user' => auth_user()])
 
                         @foreach ($users as $user)
                             @foreach ($user->posts as $post)
                                 <div class="card w-100 shadow-xss rounded-xxl border-0 p-4 mb-3">
                                     <div class="card-body p-0 d-flex">
                                         {{-- Profile photo --}}
-
-                                        <figure class="avatar me-3">
-                                            <img src="{{ $user->profile && $user->profile->profile_photo
-                                                ? asset('storage/profile_photos/' . $user->profile->profile_photo)
-                                                : asset('assets/images/user-7.png') }}"
-                                                alt="Profile photo"
-                                                class="w-12 h-12 rounded-full object-cover object-top border shadow" />
-                                        </figure>
-
-
+                                        <a href="{{ route('user.profile', $user->id) }}">
+                                            <figure class="avatar me-3">
+                                                <img src="{{ $user->profile && $user->profile->profile_photo
+                                                    ? asset('storage/profile_photos/' . $user->profile->profile_photo)
+                                                    : asset('assets/images/user-7.png') }}"
+                                                    alt="Profile photo"
+                                                    class="w-12 h-12 rounded-full object-cover object-top border shadow" />
+                                            </figure>
+                                        </a>
                                         <h4 class="fw-700 text-grey-900 font-xssss mt-1">
                                             {{ $user->name }}
                                             <span class="d-block font-xssss fw-500 mt-1 lh-3 text-grey-500">

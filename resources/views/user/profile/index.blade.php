@@ -73,14 +73,14 @@
                                     </form>
                                 </figure>
 
-                                <h4 class="fw-700 font-sm mt-2 mb-lg-5 mb-4 pl-15">{{ auth_user()->name }} <span
-                                        class="fw-500 font-xssss text-grey-500 mt-1 mb-3 d-block">{{ auth_user()->email }}</span>
+                                <h4 class="fw-700 font-sm mt-2 mb-lg-5 mb-4 pl-15">{{ $user->name }} <span
+                                        class="fw-500 font-xssss text-grey-500 mt-1 mb-3 d-block">{{ $user->email }}</span>
                                 </h4>
                                 <div
                                     class="d-flex align-items-center justify-content-center position-absolute-md right-15 top-0 me-2">
 
 
-                                    @if (auth()->id() === auth_user()->id)
+                                    @if ($user->id === auth_user()->id)
                                         {{-- If logged-in user is viewing their own profile --}}
                                         <button onclick="toggleEditCard(true)"
                                             class="d-none d-lg-block bg-success p-3 z-index-1 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3">
@@ -555,7 +555,7 @@
 
 
                         @foreach ($user->posts as $post)
-                            <div class="card w-100 shadow-xss rounded-xxl border-0 p-4 mb-3">
+                            <div class="card w-100 shadow-xss rounded-xxl border-0 p-4 mb-3 mt-3">
                                 <div class="card-body p-0 d-flex">
                                     {{-- User Profile Photo --}}
                                     @if ($user->profile && $user->profile->profile_photo)
