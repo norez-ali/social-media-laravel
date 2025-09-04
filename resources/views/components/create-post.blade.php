@@ -144,6 +144,8 @@
              </form>
          </div>
      </div>
+     {{-- the post i just created is prepended here --}}
+     <div id="postsContainer"></div>
 
 
 
@@ -174,35 +176,41 @@
                  document.getElementById('createPostWrapper').classList.toggle('hidden', !show);
              }
              //   ajax
-             $.ajaxSetup({
-                 headers: {
-                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                 }
-             });
-
-             $('#createPostForm').on('submit', function(e) {
-                 e.preventDefault();
-
-                 let formData = new FormData(this);
-
-                 $.ajax({
-                     url: $(this).attr('action'),
-                     type: "POST",
-                     data: formData,
-                     contentType: false,
-                     processData: false,
-                     success: function(response) {
-                         console.log(response);
-                         $('#createPostForm')[0].reset();
-                         $('#filePreview').empty();
-                         toggleCreatePost(false);
-
-                         // Optionally: append new post dynamically to the page
-                     },
-                     error: function(xhr) {
-                         console.error(xhr.responseText);
-                         alert('Error: ' + xhr.responseJSON.message);
+             $(document).ready(function() {
+                 $.ajaxSetup({
+                     headers: {
+                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                      }
+                 });
+
+                 // Delegate event to catch form submission inside popup
+                 $(document).on('submit', '#createPostForm', function(e) {
+                     e.preventDefault();
+
+                     let formData = new FormData(this);
+
+                     $.ajax({
+                         url: $(this).attr('action'),
+                         type: "POST",
+                         data: formData,
+                         contentType: false,
+                         processData: false,
+                         success: function(response) {
+                             console.log(response);
+
+                             $('#createPostForm')[0].reset();
+                             $('#filePreview').empty();
+                             toggleCreatePost(false);
+
+                             // Prepend the new post HTML
+                             $('#postsContainer').prepend(response.html);
+                         },
+                         error: function(xhr) {
+                             console.error(xhr.responseText);
+                             alert('Error: ' + (xhr.responseJSON?.message ??
+                                 'Something went wrong.'));
+                         }
+                     });
                  });
              });
          </script>

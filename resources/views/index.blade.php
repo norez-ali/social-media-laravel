@@ -187,7 +187,8 @@
 
                         @foreach ($users as $user)
                             @foreach ($user->posts as $post)
-                                <div class="card w-100 shadow-xss rounded-xxl border-0 p-4 mb-3">
+                                <div class="card w-100 shadow-xss rounded-xxl border-0 p-4 mb-3"
+                                    id="post-{{ $post->id }}">
                                     <div class="card-body p-0 d-flex">
                                         {{-- Profile photo --}}
                                         <a href="{{ route('user.profile', $user->id) }}">
@@ -213,6 +214,23 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-end p-4 rounded-xxl border-0 shadow-lg"
                                             aria-labelledby="dropdownMenu-{{ $post->id }}">
+                                            @if ($user->id === auth_user()->id)
+                                                <div class="post-card" id="post-{{ $post->id }}">
+                                                    <form action="{{ route('user.delete.post', $post->id) }}"
+                                                        method="POST" class="delete-post-form"
+                                                        data-id="{{ $post->id }}">
+                                                        @csrf
+                                                        @method('DELETE')
+
+                                                        <button type="submit"
+                                                            class="delete-btn d-flex align-items-center border-0 bg-transparent p-0">
+                                                            <i class="feather-trash text-grey-500 me-3 font-lg"></i>
+                                                            <h4 class="fw-600 text-grey-900 font-xssss mt-0">Delete This
+                                                                Post</h4>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            @endif
                                             <div class="card-body p-0 d-flex">
                                                 <i class="feather-bookmark text-grey-500 me-3 font-lg"></i>
                                                 <h4 class="fw-600 text-grey-900 font-xssss mt-0 me-4">
@@ -1355,6 +1373,31 @@
                         1000: {
                             items: 6
                         }
+                    }
+                });
+            });
+            // AJAX for deleting a post
+            $(document).on('submit', '.delete-post-form', function(e) {
+                e.preventDefault(); // stop normal form submission
+
+
+
+                let form = $(this);
+                let url = form.attr('action');
+                let postId = form.data('id');
+
+                $.ajax({
+                    url: url,
+                    type: 'POST', // Laravel needs POST + _method=DELETE
+                    data: form.serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            $('#post-' + postId).remove(); // remove deleted post card
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Something went wrong while deleting the post.');
+                        console.log(xhr.responseText);
                     }
                 });
             });

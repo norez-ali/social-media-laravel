@@ -52,7 +52,36 @@ class PostController extends Controller
 
         return response()->json([
             'success' => true,
-            'post'    => $post,
+            'html'    => view('components.response-post', ['post' => $post])->render(),
         ]);
+    }
+    public function destroy($id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated.'], 401);
+        }
+
+        $post = Post::find($id);
+
+        if (!$post) {
+            return response()->json(['error' => 'Post not found.'], 404);
+        }
+
+        if ($post->user_id !== $user->id) {
+            return response()->json(['error' => 'Unauthorized action.'], 403);
+        }
+
+        // Delete associated media files
+        if ($post->media) {
+            foreach ($post->media as $media) {
+                $filePath = str_replace('storage/', '', $media['file_path']);
+                Storage::disk('public')->delete($filePath);
+            }
+        }
+
+        $post->delete();
+
+        return response()->json(['success' => true, 'id' => $id]);
     }
 }
