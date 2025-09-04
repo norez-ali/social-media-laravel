@@ -550,14 +550,15 @@
                         </div>
                     </div>
                     <div class="col-xl-8 col-xxl-9 col-lg-8">
-
+                        {{-- user can start a post --}}
                         @include('components.create-post')
 
-
+                        {{-- user posts --}}
                         @foreach ($user->posts as $post)
-                            <div class="card w-100 shadow-xss rounded-xxl border-0 p-4 mb-3 mt-3">
+                            <div class="card w-100 shadow-xss rounded-xxl border-0 p-4 mb-3 mt-3"
+                                id="post-{{ $post->id }}">
                                 <div class="card-body p-0 d-flex">
-                                    {{-- User Profile Photo --}}
+
                                     @if ($user->profile && $user->profile->profile_photo)
                                         <figure class="avatar me-3">
                                             <img src="{{ asset('storage/profile_photos/' . $user->profile->profile_photo) }}"
@@ -587,6 +588,22 @@
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-end p-3 rounded-xxl border-0 shadow-lg"
                                         aria-labelledby="dropdownMenu{{ $post->id }}">
+                                        @if ($user->id === auth_user()->id)
+                                            <div class="post-card" id="post-{{ $post->id }}">
+                                                <form action="{{ route('user.delete.post', $post->id) }}" method="POST"
+                                                    class="delete-post-form" data-id="{{ $post->id }}">
+                                                    @csrf
+                                                    @method('DELETE')
+
+                                                    <button type="submit"
+                                                        class="delete-btn d-flex align-items-center border-0 bg-transparent p-0">
+                                                        <i class="feather-trash text-grey-500 me-3 font-lg"></i>
+                                                        <h4 class="fw-600 text-grey-900 font-xssss mt-0">Delete This
+                                                            Post</h4>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @endif
                                         <div class="d-flex align-items-start mb-2">
                                             <i class="feather-bookmark text-grey-500 me-2 font-lg"></i>
                                             <div>
@@ -806,6 +823,31 @@
                 // Close featured card
                 toggleFeaturedCard(false);
             }
+            // AJAX for deleting a post
+            $(document).on('submit', '.delete-post-form', function(e) {
+                e.preventDefault(); // stop normal form submission
+
+
+
+                let form = $(this);
+                let url = form.attr('action');
+                let postId = form.data('id');
+
+                $.ajax({
+                    url: url,
+                    type: 'POST', // Laravel needs POST + _method=DELETE
+                    data: form.serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            $('#post-' + postId).remove(); // remove deleted post card
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Something went wrong while deleting the post.');
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
         </script>
     @endpush
 @endsection
