@@ -13,7 +13,9 @@ class ProfileController extends Controller
 {
     public function index($id)
     {
-        $user = User::with('profile', 'posts')->find($id);
+        $user = User::with(['profile', 'posts' => function ($query) {
+            $query->withCount('likes')->with('likes.user');
+        }])->find($id);
 
         return view('user.profile.index', get_defined_vars());
     }
@@ -81,5 +83,14 @@ class ProfileController extends Controller
             'work'          => $profile->work,
             'bio'           => $profile->bio,
         ]);
+    }
+    public function photos()
+    {
+
+        $user = User::with(['profile', 'posts' => function ($query) {
+            $query->where('media_type', 'image');
+        }])->find(Auth::id());
+
+        return view('user.profile.nav.photos', get_defined_vars());
     }
 }

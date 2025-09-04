@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\User\LikeController;
 use App\Http\Controllers\User\PostController;
 use App\Http\Controllers\User\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -8,8 +9,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('user-profile/{id}', [ProfileController::class, 'index'])->name('user.profile');
     Route::put('update-profile', [ProfileController::class, 'updateProfile'])->name('user.updateProfile');
+    Route::get('user-photos', [ProfileController::class, 'photos'])->name('user.profile.photos');
 
     // Route for creating a post
     Route::post('create-post', [PostController::class, 'store'])->name('user.create.post');
     Route::delete('delete-post/{id}', [PostController::class, 'destroy'])->name('user.delete.post');
+
+    // Route for liking a post
+    Route::post('post-like/{postId}', [LikeController::class, 'like'])->name('user.like.post');
 });

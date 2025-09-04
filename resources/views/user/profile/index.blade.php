@@ -1,6 +1,18 @@
 @extends('layout.main')
 @section('content')
     <!-- main content -->
+    @push('styles')
+        <style>
+            .post-gallery-row .gallery-img {
+                height: 150px;
+                /* fixed height */
+                object-fit: cover;
+                /* crop image without distortion */
+                object-position: top;
+                /* focus on top */
+            }
+        </style>
+    @endpush
     @push('title')
         <title>Sociala. user-profile</title>
     @endpush
@@ -272,7 +284,7 @@
                                             href="#navtabs1" data-toggle="tab">Events</a></li>
                                     <li class="list-inline-item me-5"><a
                                             class="fw-700 me-sm-5 font-xssss text-grey-500 pt-3 pb-3 ls-1 d-inline-block"
-                                            href="#navtabs7" data-toggle="tab">Media</a></li>
+                                            href="{{ route('user.profile.photos') }}" data-toggle="tab">Photos</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -481,32 +493,34 @@
                         <div class="card w-100 shadow-xss rounded-xxl border-0 mb-3">
                             <div class="card-body d-flex align-items-center  p-4">
                                 <h4 class="fw-700 mb-0 font-xssss text-grey-900">Photos</h4>
-                                <a href="#" class="fw-600 ms-auto font-xssss text-primary">See all</a>
+                                <a href="{{ route('user.profile.photos') }}"
+                                    class="fw-600 ms-auto font-xssss text-primary">See all</a>
                             </div>
                             <div class="card-body d-block pt-0 pb-2">
-                                <div class="row">
-                                    <div class="col-6 mb-2 pe-1"><a href="images/e-2.jpg" data-lightbox="roadtrip"><img
-                                                src="images/e-2.jpg" alt="image"
-                                                class="img-fluid rounded-3 w-100"></a></div>
-                                    <div class="col-6 mb-2 ps-1"><a href="images/e-3.jpg" data-lightbox="roadtrip"><img
-                                                src="images/e-3.jpg" alt="image"
-                                                class="img-fluid rounded-3 w-100"></a></div>
-                                    <div class="col-6 mb-2 pe-1"><a href="images/e-4.jpg" data-lightbox="roadtrip"><img
-                                                src="images/e-4.jpg" alt="image"
-                                                class="img-fluid rounded-3 w-100"></a></div>
-                                    <div class="col-6 mb-2 ps-1"><a href="images/e-5.jpg" data-lightbox="roadtrip"><img
-                                                src="images/e-5.jpg" alt="image"
-                                                class="img-fluid rounded-3 w-100"></a></div>
-                                    <div class="col-6 mb-2 pe-1"><a href="images/e-2.jpg" data-lightbox="roadtrip"><img
-                                                src="images/e-2.jpg" alt="image"
-                                                class="img-fluid rounded-3 w-100"></a></div>
-                                    <div class="col-6 mb-2 ps-1"><a href="images/e-1.jpg" data-lightbox="roadtrip"><img
-                                                src="images/e-1.jpg" alt="image"
-                                                class="img-fluid rounded-3 w-100"></a></div>
+                                <div class="row post-gallery-row">
+                                    @forelse ($user->posts as $post)
+                                        @if (is_array($post->media) && count($post->media))
+                                            @foreach ($post->media as $file)
+                                                @if ($file['media_type'] === 'image')
+                                                    <div class="col-6 mb-2 pe-1">
+                                                        <a href="{{ asset($file['file_path']) }}"
+                                                            data-lightbox="post-{{ $post->id }}">
+                                                            <img src="{{ asset($file['file_path']) }}" alt="post image"
+                                                                class="gallery-img w-100 rounded-3 shadow-sm">
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        @endif
+                                    @empty
+                                        <p class="text-center text-muted">No Posts Yet!</p>
+                                    @endforelse
                                 </div>
+
+
                             </div>
                             <div class="card-body d-block w-100 pt-0">
-                                <a href="#"
+                                <a href="{{ route('user.profile.photos') }}"
                                     class="p-2 lh-28 w-100 d-block bg-grey text-grey-800 text-center font-xssss fw-700 rounded-xl"><i
                                         class="feather-external-link font-xss me-2"></i> More</a>
                             </div>
@@ -679,26 +693,40 @@
 
 
                                 {{-- Footer --}}
-                                <div class="card-body d-flex p-0 mt-3">
-                                    <a href="#"
-                                        class="d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss me-3">
+                                <div class="card-body d-flex p-0 mt-3 justify-content-between align-items-center">
+                                    <!-- Like -->
+                                    @php
+                                        $liked = $post->likes->contains('user_id', auth()->id());
+                                        $likeCount = $post->likes_count ?? 0;
+                                    @endphp
+
+                                    <a href="javascript:void(0);"
+                                        class="d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss like-btn"
+                                        data-id="{{ $post->id }}">
                                         <i
-                                            class="feather-thumbs-up text-white bg-primary-gradiant me-1 btn-round-xs font-xss"></i>
-                                        <i class="feather-heart text-white bg-red-gradiant me-2 btn-round-xs font-xss"></i>
-                                        2.8K Like
+                                            class="feather-thumbs-up me-1 btn-round-xs font-xss
+            {{ $liked ? 'bg-primary-gradiant text-white' : 'bg-white text-grey-900 border' }}"></i>
+                                        <span class="like-text">{{ $liked ? 'Liked' : 'Like' }}</span>
+                                        @if ($likeCount > 0)
+                                            <span class="like-count ms-1">{{ $likeCount }}</span>
+                                        @endif
                                     </a>
+
+                                    <!-- Comment (centered) -->
                                     <a href="#"
                                         class="d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss">
-                                        <i class="feather-message-circle text-dark text-grey-900 btn-round-sm font-lg"></i>
-                                        22 Comment
+                                        <i
+                                            class="feather-message-circle text-dark text-grey-900 btn-round-sm font-lg me-1"></i>
+                                        Comment
                                     </a>
+
+                                    <!-- Share -->
                                     <a href="#"
-                                        class="ms-auto d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss">
-                                        <i class="feather-share-2 text-grey-900 text-dark btn-round-sm font-lg"></i>
-                                        <span class="d-none-xs">Share</span>
+                                        class="d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss">
+                                        <i class="feather-share-2 text-grey-900 text-dark btn-round-sm font-lg me-1"></i>
+                                        Share
                                     </a>
                                 </div>
-                            </div>
                         @endforeach
 
 
@@ -845,6 +873,49 @@
                     error: function(xhr) {
                         alert('Something went wrong while deleting the post.');
                         console.log(xhr.responseText);
+                    }
+                });
+            });
+            //Ajax for liking a post
+            $(document).on('click', '.like-btn', function(e) {
+                e.preventDefault();
+
+                let button = $(this);
+                let postId = button.data('id');
+
+                $.ajax({
+                    url: '/post-like/' + postId,
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        let countElem = button.find('.like-count');
+
+                        // Update count
+                        if (response.count > 0) {
+                            if (countElem.length) {
+                                countElem.text(response.count);
+                            } else {
+                                button.append('<span class="like-count ms-1">' + response.count +
+                                    '</span>');
+                            }
+                        } else {
+                            countElem.remove();
+                        }
+
+                        // Update text + icon
+                        if (response.liked) {
+                            button.find('.like-text').text('Liked');
+                            button.find('i')
+                                .removeClass('bg-white text-grey-900 border')
+                                .addClass('bg-primary-gradiant text-white');
+                        } else {
+                            button.find('.like-text').text('Like');
+                            button.find('i')
+                                .removeClass('bg-primary-gradiant text-white')
+                                .addClass('bg-white text-grey-900 border');
+                        }
                     }
                 });
             });

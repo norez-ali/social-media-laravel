@@ -295,27 +295,43 @@
                                     @endif
 
                                     {{-- Footer --}}
-                                    <div class="card-body d-flex p-0 mt-3">
-                                        <a href="#"
-                                            class="d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss me-3">
+                                    <div class="card-body d-flex p-0 mt-3 justify-content-between align-items-center">
+                                        <!-- Like -->
+                                        @php
+                                            $liked = $post->likes->contains('user_id', auth()->id());
+                                            $likeCount = $post->likes_count ?? 0;
+                                        @endphp
+
+                                        <a href="javascript:void(0);"
+                                            class="d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss like-btn"
+                                            data-id="{{ $post->id }}">
                                             <i
-                                                class="feather-thumbs-up text-white bg-primary-gradiant me-1 btn-round-xs font-xss"></i>
-                                            <i
-                                                class="feather-heart text-white bg-red-gradiant me-2 btn-round-xs font-xss"></i>
-                                            Like
+                                                class="feather-thumbs-up me-1 btn-round-xs font-xss
+            {{ $liked ? 'bg-primary-gradiant text-white' : 'bg-white text-grey-900 border' }}"></i>
+                                            <span class="like-text">{{ $liked ? 'Liked' : 'Like' }}</span>
+                                            @if ($likeCount > 0)
+                                                <span class="like-count ms-1">{{ $likeCount }}</span>
+                                            @endif
                                         </a>
+
+                                        <!-- Comment (centered) -->
                                         <a href="#"
                                             class="d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss">
                                             <i
-                                                class="feather-message-circle text-dark text-grey-900 btn-round-sm font-lg"></i>
+                                                class="feather-message-circle text-dark text-grey-900 btn-round-sm font-lg me-1"></i>
                                             Comment
                                         </a>
+
+                                        <!-- Share -->
                                         <a href="#"
-                                            class="ms-auto d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss">
-                                            <i class="feather-share-2 text-grey-900 text-dark btn-round-sm font-lg"></i>
+                                            class="d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss">
+                                            <i
+                                                class="feather-share-2 text-grey-900 text-dark btn-round-sm font-lg me-1"></i>
                                             Share
                                         </a>
                                     </div>
+
+
                                 </div>
                             @endforeach
                         @endforeach
@@ -1128,6 +1144,7 @@
                             </div>
                         </div>
                     </div>
+                    {{-- right side content --}}
                     <div class="col-xl-4 col-xxl-3 col-lg-4 ps-lg-0">
                         <div class="card w-100 shadow-xss rounded-xxl border-0 mb-3">
                             <div class="card-body d-flex align-items-center p-4">
@@ -1398,6 +1415,49 @@
                     error: function(xhr) {
                         alert('Something went wrong while deleting the post.');
                         console.log(xhr.responseText);
+                    }
+                });
+            });
+            //Ajax for liking a post
+            $(document).on('click', '.like-btn', function(e) {
+                e.preventDefault();
+
+                let button = $(this);
+                let postId = button.data('id');
+
+                $.ajax({
+                    url: '/post-like/' + postId,
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        let countElem = button.find('.like-count');
+
+                        // Update count
+                        if (response.count > 0) {
+                            if (countElem.length) {
+                                countElem.text(response.count);
+                            } else {
+                                button.append('<span class="like-count ms-1">' + response.count +
+                                    '</span>');
+                            }
+                        } else {
+                            countElem.remove();
+                        }
+
+                        // Update text + icon
+                        if (response.liked) {
+                            button.find('.like-text').text('Liked');
+                            button.find('i')
+                                .removeClass('bg-white text-grey-900 border')
+                                .addClass('bg-primary-gradiant text-white');
+                        } else {
+                            button.find('.like-text').text('Like');
+                            button.find('i')
+                                .removeClass('bg-primary-gradiant text-white')
+                                .addClass('bg-white text-grey-900 border');
+                        }
                     }
                 });
             });

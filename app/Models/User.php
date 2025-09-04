@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User\Post;
+use App\Models\User\PostLike;
 use App\Models\User\Profile;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -58,6 +59,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+    public function likes()
+    {
+        return $this->hasMany(PostLike::class);
     }
 
     protected static function booted(): void
