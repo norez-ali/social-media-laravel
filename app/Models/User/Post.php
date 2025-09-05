@@ -3,6 +3,7 @@
 namespace App\Models\User;
 
 use App\Models\User;
+use App\Models\User\Comment;
 use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
@@ -27,5 +28,9 @@ class Post extends Model
     public function likes()
     {
         return $this->hasMany(PostLike::class);
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 }

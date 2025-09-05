@@ -17,4 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Route for liking a post
     Route::post('post-like/{postId}', [LikeController::class, 'like'])->name('user.like.post');
+
+    // Route for adding a comment to a post
+    Route::post('add-comment/{postId}', [App\Http\Controllers\User\CommentController::class, 'store'])->name('user.add.comment');
 });

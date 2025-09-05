@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User\Comment;
 use App\Models\User\Post;
 use App\Models\User\PostLike;
 use App\Models\User\Profile;
@@ -63,6 +64,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function likes()
     {
         return $this->hasMany(PostLike::class);
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 
     protected static function booted(): void
