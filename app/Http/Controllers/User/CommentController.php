@@ -35,4 +35,16 @@ class CommentController extends Controller
             ]
         ]);
     }
+    public function destroy($id)
+    {
+        $comment = Comment::findOrFail($id);
+        // Ensure the authenticated user is the owner of the comment
+        if ($comment->user_id !== auth_user()->id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $comment->delete();
+
+        return response()->json(['success' => true]);
+    }
 }

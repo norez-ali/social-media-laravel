@@ -343,7 +343,7 @@
                                                 <!-- Comments List (scrollable area) -->
                                                 <div id="commentsList" class="flex-grow-1 mb-3 overflow-auto">
                                                     @foreach ($post->comments as $comment)
-                                                        <div class="d-flex mb-3">
+                                                        <div class="d-flex mb-3" id="comment-{{ $comment->id }}">
                                                             <img src="{{ $comment->user->profile->profile_photo
                                                                 ? asset('storage/profile_photos/' . $comment->user->profile->profile_photo)
                                                                 : asset('assets/images/user-7.png') }}"
@@ -355,7 +355,23 @@
                                                                 <div class="bg-light p-2 rounded">
                                                                     <strong>{{ $comment->user->name }}</strong><br>
                                                                     {{ $comment->content }}
+
+                                                                    <form
+                                                                        action="{{ route('user.delete.comment', $comment->id) }}"
+                                                                        method="POST"
+                                                                        class="delete-comment-form d-inline">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit"
+                                                                            class="btn btn-link p-0 text-danger">
+                                                                            <img src="{{ asset('assets/images/delete-icon.svg') }}"
+                                                                                alt="delete"
+                                                                                style="width:20px; height:20px;"
+                                                                                class="mx-3">
+                                                                        </button>
+                                                                    </form>
                                                                 </div>
+
                                                                 <small
                                                                     class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
                                                             </div>
@@ -1577,6 +1593,40 @@
                         },
                         error: function() {
                             alert("Failed to add comment. Please try again.");
+                        }
+                    });
+                });
+            });
+            // AJAX for deleting a comment
+            $(document).ready(function() {
+                $('.delete-comment-form').on('submit', function(e) {
+                    e.preventDefault();
+
+
+
+                    let form = $(this);
+                    let actionUrl = form.attr('action');
+                    let token = form.find('input[name="_token"]').val();
+                    let commentDiv = form.closest('[id^="comment-"]');
+
+                    $.ajax({
+                        url: actionUrl,
+                        type: 'POST',
+                        data: {
+                            _token: token,
+                            _method: 'DELETE'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                commentDiv.fadeOut(300, function() {
+                                    $(this).remove();
+                                });
+                            } else {
+                                alert(response.error || "Failed to delete comment.");
+                            }
+                        },
+                        error: function() {
+                            alert("Something went wrong.");
                         }
                     });
                 });

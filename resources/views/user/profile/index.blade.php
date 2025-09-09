@@ -713,12 +713,93 @@
                                     </a>
 
                                     <!-- Comment (centered) -->
-                                    <a href="#"
+
+                                    <a href="javascript:void(0)" onclick="toggleComments(true)"
                                         class="d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss">
                                         <i
                                             class="feather-message-circle text-dark text-grey-900 btn-round-sm font-lg me-1"></i>
                                         Comment
                                     </a>
+
+                                    <!-- Comments Popup -->
+                                    <div id="commentsPopup"
+                                        class="d-none position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-25 d-flex justify-content-center align-items-center"
+                                        style="z-index:1050;">
+
+                                        <!-- Card -->
+                                        <div class="bg-white rounded-3 shadow p-3 w-100"
+                                            style="max-width:600px; height:80vh; display:flex; flex-direction:column;">
+
+                                            <!-- Header -->
+                                            <div
+                                                class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                                                <h5 class="m-0 fw-bold">Comments</h5>
+                                                <button onclick="toggleComments(false)"
+                                                    class="btn btn-sm btn-light">✕</button>
+                                            </div>
+
+                                            <!-- Comments List (scrollable area) -->
+                                            <div id="commentsList" class="flex-grow-1 mb-3 overflow-auto">
+                                                @foreach ($post->comments as $comment)
+                                                    <div class="d-flex mb-3" id="comment-{{ $comment->id }}">
+                                                        <img src="{{ $comment->user->profile->profile_photo
+                                                            ? asset('storage/profile_photos/' . $comment->user->profile->profile_photo)
+                                                            : asset('assets/images/user-7.png') }}"
+                                                            class="rounded-circle me-2"
+                                                            style="width:40px; height:40px; object-fit:cover; object-position:top;"
+                                                            alt="user">
+
+                                                        <div>
+                                                            <div class="bg-light p-2 rounded">
+                                                                <strong>{{ $comment->user->name }}</strong><br>
+                                                                {{ $comment->content }}
+
+                                                                <form
+                                                                    action="{{ route('user.delete.comment', $comment->id) }}"
+                                                                    method="POST" class="delete-comment-form d-inline">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit"
+                                                                        class="btn btn-link p-0 text-danger">
+                                                                        <img src="{{ asset('assets/images/delete-icon.svg') }}"
+                                                                            alt="delete"
+                                                                            style="width:20px; height:20px;"
+                                                                            class="mx-3">
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+
+                                                            <small
+                                                                class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+
+                                            <!-- Add Comment -->
+                                            <form id="commentForm" action="{{ route('user.add.comment', $post->id) }}"
+                                                method="POST" class="border-top pt-2">
+                                                @csrf
+                                                <div class="d-flex align-items-center">
+                                                    <!-- Current User Image -->
+                                                    <img src="{{ auth_user()->profile->profile_photo
+                                                        ? asset('storage/profile_photos/' . auth_user()->profile->profile_photo)
+                                                        : asset('assets/images/user-7.png') }}"
+                                                        class="rounded-circle me-2"
+                                                        style="width:40px; height:40px; object-fit:cover; object-position:top;"
+                                                        alt="you">
+
+                                                    <!-- Input -->
+                                                    <input type="text" id="newComment" name="content"
+                                                        class="form-control me-2" placeholder="Write a comment...">
+
+                                                    <!-- Button -->
+                                                    <button type="submit" class="btn btn-primary text-white"
+                                                        style="padding: 0.6rem 1.2rem; font-size: 1rem;">Post</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
 
                                     <!-- Share -->
                                     <a href="#"
@@ -917,6 +998,90 @@
                                 .addClass('bg-white text-grey-900 border');
                         }
                     }
+                });
+            });
+            //Ajax for Comments
+            function toggleComments(show) {
+                $("#commentsPopup").toggleClass("d-none", !show);
+            }
+            // AJAX for comment form
+            $(document).ready(function() {
+                $("#commentForm").on("submit", function(e) {
+                    e.preventDefault();
+
+                    let form = $(this);
+                    let url = form.attr("action");
+                    let commentText = $("#newComment").val();
+
+                    if (commentText.trim() === "") return;
+
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: form.serialize(),
+                        success: function(response) {
+                            if (response.success) {
+                                let commentHtml = `
+                        <div class="d-flex mb-3">
+                            <img src="${response.comment.profile_photo}"
+                                 class="rounded-circle me-2"
+                                 style="width:40px; height:40px; object-fit:cover; object-position:top;"
+                                 alt="user">
+                            <div>
+                                <div class="bg-light p-2 rounded">
+                                    <strong>${response.comment.user_name}</strong><br>
+                                    ${response.comment.text}
+                                </div>
+                                <small class="text-muted">${response.comment.time}</small>
+                            </div>
+                        </div>
+                    `;
+
+                                // Append instantly
+                                $("#commentsList").append(commentHtml);
+
+                                // Clear input
+                                $("#newComment").val("");
+                            }
+                        },
+                        error: function() {
+                            alert("Failed to add comment. Please try again.");
+                        }
+                    });
+                });
+            });
+            // AJAX for deleting a comment
+            $(document).ready(function() {
+                $('.delete-comment-form').on('submit', function(e) {
+                    e.preventDefault();
+
+
+
+                    let form = $(this);
+                    let actionUrl = form.attr('action');
+                    let token = form.find('input[name="_token"]').val();
+                    let commentDiv = form.closest('[id^="comment-"]');
+
+                    $.ajax({
+                        url: actionUrl,
+                        type: 'POST',
+                        data: {
+                            _token: token,
+                            _method: 'DELETE'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                commentDiv.fadeOut(300, function() {
+                                    $(this).remove();
+                                });
+                            } else {
+                                alert(response.error || "Failed to delete comment.");
+                            }
+                        },
+                        error: function() {
+                            alert("Something went wrong.");
+                        }
+                    });
                 });
             });
         </script>
