@@ -6,6 +6,7 @@ use App\Models\User\Comment;
 use App\Models\User\Post;
 use App\Models\User\PostLike;
 use App\Models\User\Profile;
+use App\Models\User\Story;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -68,6 +69,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+    public function stories()
+    {
+        return $this->hasMany(Story::class);
     }
 
     protected static function booted(): void

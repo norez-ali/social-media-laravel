@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('stories', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->constrained()->onDelete('cascade');
-            $table->string('media');
-            $table->string('media_type');
+            $table->text('content')->nullable();
+            $table->string('media')->nullable();
+            $table->enum('media_type', ['image', 'video', 'none'])->nullable();
             $table->unsignedBigInteger('views')->default(0);
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();

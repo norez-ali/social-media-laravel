@@ -4,6 +4,7 @@ use App\Http\Controllers\User\CommentController;
 use App\Http\Controllers\User\LikeController;
 use App\Http\Controllers\User\PostController;
 use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\User\StoryController;
 use Illuminate\Support\Facades\Route;
 
 // all the routes related to user functionalities will be here
@@ -22,4 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route for  comment to a post
     Route::post('add-comment/{postId}', [CommentController::class, 'store'])->name('user.add.comment');
     Route::delete('delete-comment/{id}', [CommentController::class, 'destroy'])->name('user.delete.comment');
+
+    // Routes for Stories
+    Route::post('add-story', [StoryController::class, 'store'])->name('user.add.story');
 });
