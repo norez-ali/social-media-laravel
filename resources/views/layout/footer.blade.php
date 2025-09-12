@@ -33,10 +33,13 @@
               <div class="modal-body p-0">
                   <div class="card w-100 border-0 rounded-3 overflow-hidden bg-gradiant-bottom bg-gradiant-top">
                       <div class="owl-carousel owl-theme dot-style3 story-slider owl-dot-nav nav-none">
-                          <div class="item">
-                              <img src="images/story-5.jpg" alt="image" />
-                          </div>
-                          <div class="item">
+
+                          @foreach ($stories as $story)
+                              <div class="item">
+                                  <img src="{{ asset('storage/' . $story->media) }}" alt="image" />
+                              </div>
+                          @endforeach
+                          {{-- <div class="item">
                               <img src="images/story-6.jpg" alt="image" />
                           </div>
                           <div class="item">
@@ -44,7 +47,7 @@
                           </div>
                           <div class="item">
                               <img src="images/story-8.jpg" alt="image" />
-                          </div>
+                          </div> --}}
                       </div>
                   </div>
                   <div class="form-group mt-3 mb-0 p-3 position-absolute bottom-0 z-index-1 w-100">
@@ -58,6 +61,12 @@
           </div>
       </div>
   </div>
+
+
+
+
+
+
 
   <div class="modal-popup-chat">
       <div class="modal-popup-wrap bg-white p-0 shadow-lg rounded-3">
@@ -114,6 +123,9 @@
   <script src="{{ asset('assets/js/plugin.js') }}"></script>
   <script src="{{ asset('assets/js/lightbox.js') }}"></script>
   <script src="{{ asset('assets/js/scripts.js') }}"></script>
+
+
+
   @stack('scripts')
   </body>
 

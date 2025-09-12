@@ -13,6 +13,8 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/feather.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.theme.default.min.css') }}">
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/images/favicon.png') }}" />
     <!-- Custom Stylesheet -->
