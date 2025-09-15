@@ -26,4 +26,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Routes for Stories
     Route::post('add-story', [StoryController::class, 'store'])->name('user.add.story');
+    Route::get('show-stories/{id}', [StoryController::class, 'getUserStories']);
 });

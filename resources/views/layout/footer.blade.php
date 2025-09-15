@@ -34,20 +34,9 @@
                   <div class="card w-100 border-0 rounded-3 overflow-hidden bg-gradiant-bottom bg-gradiant-top">
                       <div class="owl-carousel owl-theme dot-style3 story-slider owl-dot-nav nav-none">
 
-                          @foreach ($stories as $story)
-                              <div class="item">
-                                  <img src="{{ asset('storage/' . $story->media) }}" alt="image" />
-                              </div>
-                          @endforeach
-                          {{-- <div class="item">
-                              <img src="images/story-6.jpg" alt="image" />
-                          </div>
-                          <div class="item">
-                              <img src="images/story-7.jpg" alt="image" />
-                          </div>
-                          <div class="item">
-                              <img src="images/story-8.jpg" alt="image" />
-                          </div> --}}
+                          {{-- stories injected here by js --}}
+
+
                       </div>
                   </div>
                   <div class="form-group mt-3 mb-0 p-3 position-absolute bottom-0 z-index-1 w-100">
@@ -61,6 +50,9 @@
           </div>
       </div>
   </div>
+
+
+
 
 
 
@@ -123,6 +115,54 @@
   <script src="{{ asset('assets/js/plugin.js') }}"></script>
   <script src="{{ asset('assets/js/lightbox.js') }}"></script>
   <script src="{{ asset('assets/js/scripts.js') }}"></script>
+  <script>
+      var myModal = document.getElementById('Modalstory');
+
+      myModal.addEventListener('show.bs.modal', function(event) {
+          var button = event.relatedTarget;
+          var userId = button.getAttribute('data-id');
+
+          // Clear old stories
+          let slider = myModal.querySelector('.story-slider');
+          slider.innerHTML = '<p class="text-white p-3">Loading...</p>';
+
+          // Fetch user stories via AJAX
+          fetch('show-stories/' + userId)
+              .then(response => response.json())
+              .then(data => {
+                  slider.innerHTML = ''; // clear loading text
+
+                  if (data.length > 0) {
+                      data.forEach(story => {
+                          slider.innerHTML += `
+                            <div class="item">
+                                <img src="/storage/${story.media}" alt="story" />
+                            </div>
+                        `;
+                      });
+
+                      // ✅ Destroy old carousel if it exists
+                      if ($(slider).hasClass('owl-loaded')) {
+                          $(slider).trigger('destroy.owl.carousel');
+                          $(slider).removeClass('owl-loaded');
+                          $(slider).find('.owl-stage-outer').children().unwrap();
+                      }
+
+                      // ✅ Re-init Owl Carousel
+                      $(slider).owlCarousel({
+                          items: 1,
+                          loop: true,
+                          margin: 10,
+                          nav: true,
+                          dots: true,
+                      });
+                  } else {
+                      slider.innerHTML = '<p class="text-white p-3">No stories found</p>';
+                  }
+              });
+      });
+  </script>
+
 
 
 

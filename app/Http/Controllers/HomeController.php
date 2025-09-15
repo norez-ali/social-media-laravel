@@ -11,7 +11,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $stories = Story::all();
+
         $users = User::with([
             'profile',
             'stories',

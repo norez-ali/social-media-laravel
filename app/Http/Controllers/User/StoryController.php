@@ -43,6 +43,7 @@ class StoryController extends Controller
             'content'    => $validated['content'] ?? null,
             'media'      => $mediaPath,
             'media_type' => $mediaType,
+            'expires_at' => now()->addDay(),
         ]);
 
         // Return response (for immediate frontend display)
@@ -51,5 +52,13 @@ class StoryController extends Controller
             'story'      => $story,
             'media_url'  => $mediaPath ? asset('storage/' . $mediaPath) : null,
         ]);
+    }
+    public function getUserStories($id)
+    {
+        $user = User::with(['stories' => function ($query) {
+            $query->where('expires_at', '>', now());
+        }])->findOrFail($id);
+
+        return response()->json($user->stories);
     }
 }
