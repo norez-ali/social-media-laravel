@@ -40,11 +40,14 @@
                       </div>
                   </div>
                   <div class="form-group mt-3 mb-0 p-3 position-absolute bottom-0 z-index-1 w-100">
-                      <input type="text"
-                          class="style2-input w-100 bg-transparent border-light-md p-3 pe-5 font-xssss fw-500 text-white"
-                          value="Write Comments" />
-                      <span class="feather-send text-white font-md text-white position-absolute"
-                          style="bottom: 35px; right: 30px"></span>
+                      <form id="storyCommentForm">
+                          @csrf
+                          <input type="text" id="storyCommentInput"
+                              class="style2-input w-100 bg-transparent border-light-md p-3 pe-5 font-xssss fw-500 text-white"
+                              placeholder="Write Comments..." />
+                          <span id="sendStoryComment" class="feather-send text-white font-md position-absolute"
+                              style="bottom: 35px; right: 30px; cursor: pointer;"></span>
+                      </form>
                   </div>
               </div>
           </div>
@@ -132,23 +135,48 @@
               .then(data => {
                   slider.innerHTML = ''; // clear loading text
 
-                  if (data.length > 0) {
-                      data.forEach(story => {
-                          slider.innerHTML += `
-                            <div class="item">
-                                <img src="/storage/${story.media}" alt="story" />
-                            </div>
-                        `;
+                  if (data.stories.length > 0) {
+                      data.stories.forEach(story => {
+                          let slide = '';
+
+                          if (story.media_type === 'image') {
+                              slide = `
+                        <div class="item d-flex align-items-center justify-content-center" style="height:600px; background:#000;">
+                            <img src="/storage/${story.media}" alt="story"
+                                style="max-height:100%; max-width:100%; object-fit:cover;"
+                                data-story-id="${story.id}" data-user-id="${data.user_id}" />
+                        </div>
+                    `;
+                          } else if (story.media_type === 'video') {
+                              slide = `
+                        <div class="item d-flex align-items-center justify-content-center" style="height:600px; background:#000;">
+                            <video style="max-height:100%; max-width:100%; object-fit:cover;" controls
+                                data-story-id="${story.id}" data-user-id="${data.user_id}">
+                                <source src="/storage/${story.media}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    `;
+                          } else {
+                              slide = `
+                        <div class="item d-flex align-items-center justify-content-center"
+                            style="height:600px; background:#000; color:#fff; font-size:20px; text-align:center;"
+                            data-story-id="${story.id}" data-user-id="${data.user_id}">
+                            <p class="p-3">${story.content ?? ''}</p>
+                        </div>
+                    `;
+                          }
+
+                          slider.innerHTML += slide;
                       });
 
-                      // ✅ Destroy old carousel if it exists
+                      // ✅ Reset Owl Carousel
                       if ($(slider).hasClass('owl-loaded')) {
                           $(slider).trigger('destroy.owl.carousel');
                           $(slider).removeClass('owl-loaded');
                           $(slider).find('.owl-stage-outer').children().unwrap();
                       }
 
-                      // ✅ Re-init Owl Carousel
                       $(slider).owlCarousel({
                           items: 1,
                           loop: true,
@@ -160,8 +188,41 @@
                       slider.innerHTML = '<p class="text-white p-3">No stories found</p>';
                   }
               });
+
+      });
+      //adding story comments
+      $(document).on("click", "#sendStoryComment", function(e) {
+          e.preventDefault();
+
+          let comment = $("#storyCommentInput").val().trim();
+          if (!comment) return;
+
+          let activeSlide = $(".story-slider .owl-item.active .item [data-story-id]");
+          if (activeSlide.length === 0) {
+              alert("No story selected.");
+              return;
+          }
+
+          let storyId = activeSlide.data("story-id");
+
+          $.ajax({
+              url: "/add-story-comment/" + storyId, // ✅ storyId in URL
+              type: "POST",
+              data: {
+                  _token: "{{ csrf_token() }}", // ✅ CSRF
+                  content: comment
+              },
+              success: function(response) {
+
+                  $("#storyCommentInput").val("");
+              },
+              error: function(xhr) {
+                  console.error("❌ AJAX error:", xhr.status, xhr.responseText);
+              }
+          });
       });
   </script>
+
 
 
 

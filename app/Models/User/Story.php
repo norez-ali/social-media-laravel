@@ -3,6 +3,7 @@
 namespace App\Models\User;
 
 use App\Models\User;
+use App\Models\User\StoryComment;
 use Illuminate\Database\Eloquent\Model;
 
 class Story extends Model
@@ -23,5 +24,9 @@ class Story extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function storyComments()
+    {
+        return $this->hasMany(StoryComment::class);
     }
 }

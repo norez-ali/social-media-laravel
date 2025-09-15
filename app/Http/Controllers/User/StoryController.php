@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\User\StoryComment;
 use Illuminate\Support\Facades\Auth;
 
 class StoryController extends Controller
@@ -33,32 +34,58 @@ class StoryController extends Controller
 
             // Store in storage/app/public/stories
             $mediaPath = $file->store('stories', 'public');
-        } else {
-            $mediaType = 'none';
         }
 
-        // Save in DB (example)
-        $story = $user->stories()->create([
-            'user_id' => $user->id,
-            'content'    => $validated['content'] ?? null,
-            'media'      => $mediaPath,
-            'media_type' => $mediaType,
-            'expires_at' => now()->addDay(),
-        ]);
+        // ✅ Only save if content or media exists
+        if (!empty($validated['content']) || $mediaPath) {
+            $story = $user->stories()->create([
+                'user_id'    => $user->id,
+                'content'    => $validated['content'] ?? null,
+                'media'      => $mediaPath,
+                'media_type' => $mediaType,
+                'expires_at' => now()->addDay(),
+            ]);
 
-        // Return response (for immediate frontend display)
+            return response()->json([
+                'success'    => true,
+                'story'      => $story,
+                'media_url'  => $mediaPath ? asset('storage/' . $mediaPath) : null,
+            ]);
+        }
+
+        // ✅ If no content & no media, return error
         return response()->json([
-            'success'    => true,
-            'story'      => $story,
-            'media_url'  => $mediaPath ? asset('storage/' . $mediaPath) : null,
-        ]);
+            'success' => false,
+            'message' => 'Story must have either content or media.',
+        ], 422);
     }
+
     public function getUserStories($id)
     {
         $user = User::with(['stories' => function ($query) {
             $query->where('expires_at', '>', now());
         }])->findOrFail($id);
 
-        return response()->json($user->stories);
+        return response()->json([
+            'user_id' => $user->id,
+            'stories' => $user->stories
+        ]);
+    }
+    public function addStoryComments(Request $request, $storyId)
+    {
+        $validated = $request->validate([
+            'content' => 'required|string|max:2000'
+        ]);
+
+        $story_comment = StoryComment::create([
+            'comment' => $request->content,
+            'user_id' => auth()->user()->id,
+            'story_id' => $storyId,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'comment' => $story_comment,
+        ]);
     }
 }

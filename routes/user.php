@@ -23,8 +23,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route for  comment to a post
     Route::post('add-comment/{postId}', [CommentController::class, 'store'])->name('user.add.comment');
     Route::delete('delete-comment/{id}', [CommentController::class, 'destroy'])->name('user.delete.comment');
+    Route::get('show-comments/{postId}', [PostController::class, 'getComments']);
 
     // Routes for Stories
     Route::post('add-story', [StoryController::class, 'store'])->name('user.add.story');
     Route::get('show-stories/{id}', [StoryController::class, 'getUserStories']);
+    Route::post('add-story-comment/{storyId}', [StoryController::class, 'addStoryComments'])
+        ->name('story.add.comment');
 });
