@@ -83,6 +83,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected static function booted(): void
     {
+        //for creating a null profile
         static::created(function ($user) {
             $user->profile()->create([
                 'user_id' => $user->id,

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\User\StoryComment;
+use App\Models\User\Story;
 use Illuminate\Support\Facades\Auth;
 
 class StoryController extends Controller
@@ -62,13 +63,28 @@ class StoryController extends Controller
 
     public function getUserStories($id)
     {
-        $user = User::with(['stories' => function ($query) {
-            $query->where('expires_at', '>', now());
-        }])->findOrFail($id);
+        $stories = Story::with('user')
+            ->where('user_id', $id)
+            ->where('expires_at', '>', now())
+            ->get();
+        //increasing the view of the stoies by that user
+        Story::where('user_id', $id)
+            ->where('expires_at', '>', now())
+            ->increment('views');
+        // foreach ($stories as $story) {
+        //     // Check if the currently authenticated user has already viewed this story
+        //     if (! $story->views()->where('user_id', auth()->id())->exists()) {
+        //         // Increment story views
+        //         $story->increment('views');
+        //     }
+        // }
+
+
+
 
         return response()->json([
-            'user_id' => $user->id,
-            'stories' => $user->stories
+            'user_id' => $id,
+            'stories' => $stories
         ]);
     }
     public function addStoryComments(Request $request, $storyId)

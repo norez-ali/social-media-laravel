@@ -136,35 +136,46 @@
                   slider.innerHTML = ''; // clear loading text
 
                   if (data.stories.length > 0) {
+
                       data.stories.forEach(story => {
+                          let viewsCount = story.views ?? 0; // Get views count
                           let slide = '';
 
                           if (story.media_type === 'image') {
                               slide = `
-                        <div class="item d-flex align-items-center justify-content-center" style="height:600px; background:#000;">
-                            <img src="/storage/${story.media}" alt="story"
-                                style="max-height:100%; max-width:100%; object-fit:cover;"
-                                data-story-id="${story.id}" data-user-id="${data.user_id}" />
-                        </div>
-                    `;
+                            <div class="item story-item position-relative" style="height:600px; background:#000;">
+                                <img src="/storage/${story.media}" alt="story"
+                                    style="max-height:100%; max-width:100%; object-fit:cover;"
+                                    data-story-id="${story.id}" data-user-id="${data.user_id}" />
+                               <span class="story-views position-absolute text-white px-3 py-2"
+      style="bottom:75px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.5); border-radius:20px; font-size:16px;">
+    👁 ${viewsCount}
+</span>
+                            </div>
+                        `;
                           } else if (story.media_type === 'video') {
                               slide = `
-                        <div class="item d-flex align-items-center justify-content-center" style="height:600px; background:#000;">
-                            <video style="max-height:100%; max-width:100%; object-fit:cover;" controls
-                                data-story-id="${story.id}" data-user-id="${data.user_id}">
-                                <source src="/storage/${story.media}" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    `;
+                            <div class="item story-item position-relative" style="height:600px; background:#000;">
+                                <video style="max-height:100%; max-width:100%; object-fit:cover;" controls
+                                    data-story-id="${story.id}" data-user-id="${data.user_id}">
+                                    <source src="/storage/${story.media}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                                <span class="story-views position-absolute text-white px-2 py-1" style="bottom:10px; right:10px; background:rgba(0,0,0,0.5); border-radius:12px; font-size:14px;">
+                                    👁 ${viewsCount}
+                                </span>
+                            </div>
+                        `;
                           } else {
                               slide = `
-                        <div class="item d-flex align-items-center justify-content-center"
-                            style="height:600px; background:#000; color:#fff; font-size:20px; text-align:center;"
-                            data-story-id="${story.id}" data-user-id="${data.user_id}">
-                            <p class="p-3">${story.content ?? ''}</p>
-                        </div>
-                    `;
+                            <div class="item story-item position-relative" style="height:600px; background:#000; color:#fff; font-size:20px; text-align:center;"
+                                data-story-id="${story.id}" data-user-id="${data.user_id}">
+                                <p class="p-3">${story.content ?? ''}</p>
+                                <span class="story-views position-absolute text-white px-2 py-1" style="bottom:10px; right:10px; background:rgba(0,0,0,0.5); border-radius:12px; font-size:14px;">
+                                    👁 ${viewsCount}
+                                </span>
+                            </div>
+                        `;
                           }
 
                           slider.innerHTML += slide;
@@ -177,19 +188,24 @@
                           $(slider).find('.owl-stage-outer').children().unwrap();
                       }
 
+                      // Initialize Owl Carousel
                       $(slider).owlCarousel({
                           items: 1,
                           loop: true,
                           margin: 10,
                           nav: true,
                           dots: true,
+                          autoplay: true,
+                          autoplayTimeout: 6000, // 6 seconds per story
+                          autoplayHoverPause: true,
                       });
+
                   } else {
                       slider.innerHTML = '<p class="text-white p-3">No stories found</p>';
                   }
               });
-
       });
+
       //adding story comments
       $(document).on("click", "#sendStoryComment", function(e) {
           e.preventDefault();
