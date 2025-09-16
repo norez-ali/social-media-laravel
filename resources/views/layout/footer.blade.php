@@ -161,9 +161,10 @@
                                     <source src="/storage/${story.media}" type="video/mp4">
                                     Your browser does not support the video tag.
                                 </video>
-                                <span class="story-views position-absolute text-white px-2 py-1" style="bottom:10px; right:10px; background:rgba(0,0,0,0.5); border-radius:12px; font-size:14px;">
-                                    👁 ${viewsCount}
-                                </span>
+                               <span class="story-views position-absolute text-white px-3 py-2"
+      style="bottom:75px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.5); border-radius:20px; font-size:16px;">
+    👁 ${viewsCount}
+</span>
                             </div>
                         `;
                           } else {
@@ -171,9 +172,10 @@
                             <div class="item story-item position-relative" style="height:600px; background:#000; color:#fff; font-size:20px; text-align:center;"
                                 data-story-id="${story.id}" data-user-id="${data.user_id}">
                                 <p class="p-3">${story.content ?? ''}</p>
-                                <span class="story-views position-absolute text-white px-2 py-1" style="bottom:10px; right:10px; background:rgba(0,0,0,0.5); border-radius:12px; font-size:14px;">
-                                    👁 ${viewsCount}
-                                </span>
+                                 <span class="story-views position-absolute text-white px-3 py-2"
+      style="bottom:75px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.5); border-radius:20px; font-size:16px;">
+    👁 ${viewsCount}
+</span>
                             </div>
                         `;
                           }

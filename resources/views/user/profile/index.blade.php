@@ -92,22 +92,42 @@
                                     class="d-flex align-items-center justify-content-center position-absolute-md right-15 top-0 me-2">
 
 
-                                    @if ($user->id === auth_user()->id)
+                                    @if ($user->id === auth()->id())
                                         {{-- If logged-in user is viewing their own profile --}}
                                         <button onclick="toggleEditCard(true)"
                                             class="d-none d-lg-block bg-success p-3 z-index-1 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3">
                                             Edit Profile
                                         </button>
                                     @else
-                                        {{-- If viewing someone else’s profile --}}
+                                        @if ($checkFriend && $checkFriend->sender_id == auth()->id() && $checkFriend->status == 'pending')
+                                            {{-- Logged-in user already sent a request --}}
+                                            <a href="javascript:void(0);"
+                                                data-url="{{ route('user.cancel.request', $user->id) }}"
+                                                class="cancel-request bg-dark p-3 z-index-1 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3">
+                                                Cancel Request
+                                            </a>
+                                        @elseif ($checkFriend && $checkFriend->status == 'accepted')
+                                            {{-- They are already friends --}}
+                                            <button
+                                                class="bg-secondary p-3 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3"
+                                                disabled>
+                                                Friends
+                                            </button>
+                                        @else
+                                            {{-- No friendship exists yet --}}
+                                            <a href="javascript:void(0);"
+                                                data-url="{{ route('user.send.request', $user->id) }}"
+                                                class="send-request bg-success p-3 z-index-1 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3">
+                                                Add Friend
+                                            </a>
+                                        @endif
+
                                         <a href="#"
-                                            class="d-none d-lg-block bg-success p-3 z-index-1 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3">
-                                            Add Friend
+                                            class="d-none d-lg-block bg-greylight btn-round-lg ms-2 rounded-3 text-grey-700">
+                                            <i class="feather-mail font-md"></i>
                                         </a>
-                                        <a href="#"
-                                            class="d-none d-lg-block bg-greylight btn-round-lg ms-2 rounded-3 text-grey-700"><i
-                                                class="feather-mail font-md"></i></a>
                                     @endif
+
                                     <!-- Edit Profile Card Starts here -->
                                     <div id="editCardWrapper"
                                         class="hidden fixed inset-0 flex items-start justify-center bg-opacity-50 backdrop-blur-sm z-50 overflow-y-auto p-6">
@@ -1081,6 +1101,81 @@
                         error: function() {
                             alert("Something went wrong.");
                         }
+                    });
+                });
+            });
+            //send friend request
+            document.addEventListener("DOMContentLoaded", function() {
+                document.querySelectorAll(".send-request").forEach(function(button) {
+                    button.addEventListener("click", function(e) {
+                        e.preventDefault();
+
+                        let url = this.getAttribute("data-url");
+                        let btn = this; // keep reference to clicked button
+
+                        fetch(url, {
+                                method: "POST",
+                                headers: {
+                                    "X-CSRF-TOKEN": document.querySelector(
+                                        'meta[name="csrf-token"]').getAttribute("content"),
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({}) // user_id already passed in route
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // ✅ Replace "Add Friend" button with "Cancel Request"
+                                    btn.outerHTML = `
+                        <a href="javascript:void(0);"
+                            data-url="${btn.getAttribute("data-url").replace('send.request', 'cancel.request')}"
+                            class="cancel-request bg-dark p-3 z-index-1 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3">
+                            Cancel Request
+                        </a>
+                    `;
+                                } else {
+                                    alert(data.error);
+                                }
+                            })
+                            .catch(error => console.error("Error:", error));
+                    });
+                });
+            });
+            //handles cancel requests
+
+            document.addEventListener("DOMContentLoaded", function() {
+                document.querySelectorAll(".cancel-request").forEach(function(button) {
+                    button.addEventListener("click", function(e) {
+                        e.preventDefault();
+
+                        let url = this.getAttribute("data-url");
+                        let btn = this; // reference to clicked button
+
+                        fetch(url, {
+                                method: "POST",
+                                headers: {
+                                    "X-CSRF-TOKEN": document.querySelector(
+                                        'meta[name="csrf-token"]').getAttribute("content"),
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({})
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // ✅ Replace "Cancel Request" with "Add Friend"
+                                    btn.outerHTML = `
+                        <a href="javascript:void(0);"
+                            data-url="${btn.getAttribute("data-url").replace('cancel.request', 'send.request')}"
+                           class="send-request bg-success p-3 z-index-1 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3">
+                           Add Friend
+                        </a>
+                    `;
+                                } else {
+                                    alert(data.error);
+                                }
+                            })
+                            .catch(error => console.error("Error:", error));
                     });
                 });
             });

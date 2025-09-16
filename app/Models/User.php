@@ -8,6 +8,7 @@ use App\Models\User\PostLike;
 use App\Models\User\Profile;
 use App\Models\User\Story;
 use App\Models\User\StoryComment;
+use App\Models\User\Friendship;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -78,6 +79,25 @@ class User extends Authenticatable implements MustVerifyEmail
     public function storyComments()
     {
         return $this->hasMany(StoryComment::class);
+    }
+
+    // Friend requests sent by the user
+    public function sentFriendRequests()
+    {
+        return $this->hasMany(Friendship::class, 'sender_id');
+    }
+
+    // Friend requests received by the user
+    public function receivedFriendRequests()
+    {
+        return $this->hasMany(Friendship::class, 'receiver_id');
+    }
+    // Actual friends (accepted)
+    public function friends()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'sender_id', 'receiver_id')
+            ->wherePivot('status', 'accepted')
+            ->withTimestamps();
     }
 
 

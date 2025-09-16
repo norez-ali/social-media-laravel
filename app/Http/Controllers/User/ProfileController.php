@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\User\Friendship;
 use App\Models\User\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,17 @@ class ProfileController extends Controller
         $user = User::with(['profile', 'posts' => function ($query) {
             $query->withCount('likes')->with('likes.user');
         }])->find($id);
+        $checkFriend = Friendship::where(function ($q) use ($id) {
+            $q->where('sender_id', auth()->id())
+                ->where('receiver_id', $id);
+        })
+            ->orWhere(function ($q) use ($id) {
+                $q->where('sender_id', $id)
+                    ->where('receiver_id', auth()->id());
+            })
+            ->first(); // returns null if no friendship
+
+
 
         return view('user.profile.index', get_defined_vars());
     }

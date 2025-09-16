@@ -5,6 +5,8 @@ use App\Http\Controllers\User\LikeController;
 use App\Http\Controllers\User\PostController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\StoryController;
+use App\Http\Controllers\User\FriendshipController;
+
 use Illuminate\Support\Facades\Route;
 
 // all the routes related to user functionalities will be here
@@ -30,4 +32,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('show-stories/{id}', [StoryController::class, 'getUserStories']);
     Route::post('add-story-comment/{storyId}', [StoryController::class, 'addStoryComments'])
         ->name('story.add.comment');
+
+    //Routes for friendships
+    Route::post('send-request/{receiverId}', [FriendshipController::class, 'sendRequest'])->name('user.send.request');
+    Route::post('cancel-request/{receiverId}', [FriendshipController::class, 'cancelRequest'])->name('user.cancel.request');
+    Route::get('show-friends/{id}', [FriendshipController::class, 'showFriends'])->name('user.show.friends');
 });
