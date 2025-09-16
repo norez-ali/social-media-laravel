@@ -18,12 +18,12 @@ class ProfileController extends Controller
             $query->withCount('likes')->with('likes.user');
         }])->find($id);
         $checkFriend = Friendship::where(function ($q) use ($id) {
-            $q->where('sender_id', auth()->id())
+            $q->where('sender_id', auth_user()->id)
                 ->where('receiver_id', $id);
         })
             ->orWhere(function ($q) use ($id) {
                 $q->where('sender_id', $id)
-                    ->where('receiver_id', auth()->id());
+                    ->where('receiver_id', auth_user()->id);
             })
             ->first(); // returns null if no friendship
 

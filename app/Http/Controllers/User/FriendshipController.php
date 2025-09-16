@@ -38,7 +38,7 @@ class FriendshipController extends Controller
     }
     public function cancelRequest($receiverId)
     {
-        $friendRequest = Friendship::where('sender_id', auth()->id())
+        $friendRequest = Friendship::where('sender_id', auth_user()->id)
             ->where('receiver_id', $receiverId)
             ->first();
 
@@ -53,5 +53,58 @@ class FriendshipController extends Controller
         return response()->json([
             'error' => 'No friend request found to cancel.'
         ], 404);
+    }
+    public function showFriends()
+    {
+        $requests = Friendship::with(['sender.profile'])
+            ->where('receiver_id', auth_user()->id)   // current user is the receiver
+            ->where('status', 'pending')           // only pending requests
+            ->get();
+
+        return view('user.requests.index', get_defined_vars());
+    }
+    public function acceptFriend($senderId)
+    {
+        // Find the friendship where the logged in user is the receiver
+        $friendship = Friendship::where('sender_id', $senderId)
+            ->where('receiver_id', auth_user()->id)
+            ->first();
+
+        if (! $friendship) {
+            return response()->json(['success' => false, 'error' => 'Friend request not found.'], 404);
+        }
+
+        // Update status to accepted
+        $friendship->update([
+            'status' => 'accepted',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Friend request accepted successfully.',
+        ]);
+    }
+    public function deleteRequest($senderId)
+    {
+        // Find the friendship where current user is receiver
+        $friendship = Friendship::where('sender_id', $senderId)
+            ->where('receiver_id', auth_user()->id)
+            ->where('status', 'pending')
+            ->first();
+
+        if (! $friendship) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Friend request not found.'
+            ], 404);
+        }
+
+        // Delete the record
+        $friendship->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Friend request deleted successfully.'
+        ]);
     }
 }
