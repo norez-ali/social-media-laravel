@@ -99,6 +99,25 @@ class User extends Authenticatable implements MustVerifyEmail
             ->wherePivot('status', 'accepted')
             ->withTimestamps();
     }
+    //for suggestions on the home page
+    public function scopeSuggestions($query, $authId)
+    {
+        $friendIds = Friendship::where(function ($q) use ($authId) {
+            $q->where('sender_id', $authId)
+                ->orWhere('receiver_id', $authId);
+        })
+            ->get(['sender_id', 'receiver_id'])   // get both columns
+            ->flatMap(function ($row) {
+                return [$row->sender_id, $row->receiver_id];
+            })
+            ->unique()
+            ->toArray();
+
+        $friendIds[] = $authId; // exclude self
+
+        return $query->whereNotIn('id', $friendIds);
+    }
+
 
 
     protected static function booted(): void

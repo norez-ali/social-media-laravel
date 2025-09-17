@@ -106,8 +106,15 @@
 
                         @include('components.create-post', ['user' => auth_user()])
 
-                        @foreach ($users as $user)
+                        @php
+                            // Flatten post count across all users
+                            $injectAfter = rand(2, max(3, $users->pluck('posts')->flatten()->count() - 1));
+                            $postCounter = 0;
+                        @endphp
+
+                        @foreach ($users as $index => $user)
                             @foreach ($user->posts as $post)
+                                @php $postCounter++; @endphp
                                 <div class="card w-100 shadow-xss rounded-xxl border-0 p-4 mb-3"
                                     id="post-{{ $post->id }}">
                                     <div class="card-body p-0 d-flex">
@@ -241,7 +248,7 @@
                                             class="d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss">
                                             <i
                                                 class="feather-message-circle text-dark text-grey-900 btn-round-sm font-lg me-1"></i>
-                                            Comment
+                                            Comment ({{ $post->comments_count }})
                                         </a>
 
                                         <!-- Comments Popup -->
@@ -277,20 +284,22 @@
                                                                     <strong>{{ $comment->user->name }}</strong><br>
                                                                     {{ $comment->content }}
 
-                                                                    <form
-                                                                        action="{{ route('user.delete.comment', $comment->id) }}"
-                                                                        method="POST"
-                                                                        class="delete-comment-form d-inline">
-                                                                        @csrf
-                                                                        @method('DELETE')
-                                                                        <button type="submit"
-                                                                            class="btn btn-link p-0 text-danger">
-                                                                            <img src="{{ asset('assets/images/delete-icon.svg') }}"
-                                                                                alt="delete"
-                                                                                style="width:20px; height:20px;"
-                                                                                class="mx-3">
-                                                                        </button>
-                                                                    </form>
+                                                                    @if ($comment->user_id == auth_user()->id)
+                                                                        <form
+                                                                            action="{{ route('user.delete.comment', $comment->id) }}"
+                                                                            method="POST"
+                                                                            class="delete-comment-form d-inline">
+                                                                            @csrf
+                                                                            @method('DELETE')
+                                                                            <button type="submit"
+                                                                                class="btn btn-link p-0 text-danger">
+                                                                                <img src="{{ asset('assets/images/delete-icon.svg') }}"
+                                                                                    alt="delete"
+                                                                                    style="width:20px; height:20px;"
+                                                                                    class="mx-3">
+                                                                            </button>
+                                                                        </form>
+                                                                    @endif
                                                                 </div>
 
                                                                 <small
@@ -339,297 +348,82 @@
 
 
                                 </div>
+                                {{-- Inject suggested users after the chosen post --}}
+                                @if ($postCounter == $injectAfter)
+                                    <div class="suggestions card w-100 bg-white shadow-sm border-0 rounded-xxl p-3 mb-1">
+                                        <h2 class="fw-700 text-dark mb-0">Suggestions</h2>
+                                    </div>
+
+                                    <div class="card w-100 shadow-none bg-transparent border-0 p-0 mb-0">
+                                        <div class="owl-carousel category-card owl-theme overflow-hidden nav-none">
+                                            @foreach ($suggested_users as $suggested)
+                                                <div class="item">
+                                                    <div
+                                                        class="card w150 d-block border-0 shadow-xss rounded-3 overflow-hidden mb-3 me-2 mt-3">
+                                                        <div class="card-body d-block w-100 ps-3 pe-3 pb-4 text-center">
+                                                            <figure
+                                                                class="avatar ms-auto me-auto mb-0 position-relative w65 z-index-1">
+                                                                <img src="{{ $suggested->profile && $suggested->profile->profile_photo
+                                                                    ? asset('storage/profile_photos/' . $suggested->profile->profile_photo)
+                                                                    : asset('assets/images/user-12.png') }}"
+                                                                    alt="suggested_photo"
+                                                                    class="p-0 bg-white rounded-circle shadow-xss"
+                                                                    style="width: 100px; height:100px; object-fit: cover; object-position: top;" />
+                                                            </figure>
+                                                            <h4 class="fw-700 font-xssss mt-3 mb-1">{{ $suggested->name }}
+                                                            </h4>
+                                                            <a href="javascript:void(0);"
+                                                                data-url="{{ route('user.send.request', $suggested->id) }}"
+                                                                class="send-request text-center p-2 lh-20 w100 ms-1 ls-3 d-inline-block rounded-xl bg-success font-xsssss fw-700 text-white">
+                                                                Add Friend
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
                             @endforeach
                         @endforeach
 
 
 
 
-                        <div class="card w-100 shadow-none bg-transparent bg-transparent-card border-0 p-0 mb-0">
+
+
+
+
+                        {{-- <div class="card w-100 shadow-none bg-transparent bg-transparent-card border-0 p-0 mb-0">
                             <div class="owl-carousel category-card owl-theme overflow-hidden nav-none">
-                                <div class="item">
-                                    <div
-                                        class="card w200 d-block border-0 shadow-xss rounded-xxl overflow-hidden mb-3 me-2 mt-3">
-                                        <div class="card-body position-relative h100 bg-image-cover bg-image-center"
-                                            style="background-image: url(images/u-bg.jpg)"></div>
-                                        <div class="card-body d-block w-100 ps-4 pe-4 pb-4 text-center">
-                                            <figure
-                                                class="avatar ms-auto me-auto mb-0 mt--6 position-relative w75 z-index-1">
-                                                <img src="images/user-11.png" alt="image"
-                                                    class="float-right p-1 bg-white rounded-circle w-100" />
-                                            </figure>
-                                            <div class="clearfix"></div>
-                                            <h4 class="fw-700 font-xsss mt-2 mb-1">
-                                                Aliqa Macale
-                                            </h4>
-                                            <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-2">
-                                                support@gmail.com
-                                            </p>
-                                            <span
-                                                class="live-tag mt-2 mb-0 bg-danger p-2 z-index-1 rounded-3 text-white font-xsssss text-uppersace fw-700 ls-3">LIVE</span>
-                                            <div class="clearfix mb-2"></div>
+                                @foreach ($suggested_users as $user)
+                                    <div class="item">
+                                        <div
+                                            class="card w150 d-block border-0 shadow-xss rounded-3 overflow-hidden mb-3 me-2 mt-3">
+                                            <div class="card-body d-block w-100 ps-3 pe-3 pb-4 text-center">
+                                                <figure
+                                                    class="avatar ms-auto me-auto mb-0 position-relative w65 z-index-1">
+                                                    <img src="{{ $user->profile && $user->profile->profile_photo
+                                                        ? asset('storage/profile_photos/' . $user->profile->profile_photo)
+                                                        : asset('assets/images/user-12.png') }}"
+                                                        alt="suggested_photo"
+                                                        class="float-right p-0 bg-white rounded-circle shadow-xss"
+                                                        style="width: 100px; height:100px; object-fit: cover; object-position: top; border-radius: 50%;" />
+                                                </figure>
+                                                <div class="clearfix"></div>
+                                                <h4 class="fw-700 font-xssss mt-3 mb-1">
+                                                    {{ $user->name }}
+                                                </h4>
+                                                <a href="javascript:void(0);"
+                                                    data-url="{{ route('user.send.request', $user->id) }}"
+                                                    class="send-request text-center p-2 lh-20 w100 ms-1 ls-3 d-inline-block rounded-xl bg-success font-xsssss fw-700 ls-lg text-white">Add
+                                                    Friend</a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div class="item">
-                                    <div
-                                        class="card w200 d-block border-0 shadow-xss rounded-xxl overflow-hidden mb-3 me-2 mt-3">
-                                        <div class="card-body position-relative h100 bg-image-cover bg-image-center"
-                                            style="background-image: url(images/s-2.jpg)"></div>
-                                        <div class="card-body d-block w-100 ps-4 pe-4 pb-4 text-center">
-                                            <figure
-                                                class="avatar ms-auto me-auto mb-0 mt--6 position-relative w75 z-index-1">
-                                                <img src="images/user-2.png" alt="image"
-                                                    class="float-right p-1 bg-white rounded-circle w-100" />
-                                            </figure>
-                                            <div class="clearfix"></div>
-                                            <h4 class="fw-700 font-xsss mt-2 mb-1">
-                                                Seary Victor
-                                            </h4>
-                                            <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-2">
-                                                support@gmail.com
-                                            </p>
-                                            <span
-                                                class="live-tag mt-2 mb-0 bg-danger p-2 z-index-1 rounded-3 text-white font-xsssss text-uppersace fw-700 ls-3">LIVE</span>
-                                            <div class="clearfix mb-2"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="item">
-                                    <div
-                                        class="card w200 d-block border-0 shadow-xss rounded-xxl overflow-hidden mb-3 me-2 mt-3">
-                                        <div class="card-body position-relative h100 bg-image-cover bg-image-center"
-                                            style="background-image: url(images/s-6.jpg)"></div>
-                                        <div class="card-body d-block w-100 ps-4 pe-4 pb-4 text-center">
-                                            <figure
-                                                class="avatar ms-auto me-auto mb-0 mt--6 position-relative w75 z-index-1">
-                                                <img src="images/user-3.png" alt="image"
-                                                    class="float-right p-1 bg-white rounded-circle w-100" />
-                                            </figure>
-                                            <div class="clearfix"></div>
-                                            <h4 class="fw-700 font-xsss mt-2 mb-1">
-                                                John Steere
-                                            </h4>
-                                            <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-2">
-                                                support@gmail.com
-                                            </p>
-                                            <span
-                                                class="live-tag mt-2 mb-0 bg-danger p-2 z-index-1 rounded-3 text-white font-xsssss text-uppersace fw-700 ls-3">LIVE</span>
-                                            <div class="clearfix mb-2"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="item">
-                                    <div
-                                        class="card w200 d-block border-0 shadow-xss rounded-xxl overflow-hidden mb-3 me-2 mt-3">
-                                        <div class="card-body position-relative h100 bg-image-cover bg-image-center"
-                                            style="background-image: url(images/bb-16.png)"></div>
-                                        <div class="card-body d-block w-100 ps-4 pe-4 pb-4 text-center">
-                                            <figure
-                                                class="avatar ms-auto me-auto mb-0 mt--6 position-relative w75 z-index-1">
-                                                <img src="images/user-4.png" alt="image"
-                                                    class="float-right p-1 bg-white rounded-circle w-100" />
-                                            </figure>
-                                            <div class="clearfix"></div>
-                                            <h4 class="fw-700 font-xsss mt-2 mb-1">
-                                                Mohannad Zitoun
-                                            </h4>
-                                            <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-2">
-                                                support@gmail.com
-                                            </p>
-                                            <span
-                                                class="live-tag mt-2 mb-0 bg-danger p-2 z-index-1 rounded-3 text-white font-xsssss text-uppersace fw-700 ls-3">LIVE</span>
-                                            <div class="clearfix mb-2"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="item">
-                                    <div
-                                        class="card w200 d-block border-0 shadow-xss rounded-xxl overflow-hidden mb-3 me-2 mt-3">
-                                        <div class="card-body position-relative h100 bg-image-cover bg-image-center"
-                                            style="background-image: url(images/e-4.jpg)"></div>
-                                        <div class="card-body d-block w-100 ps-4 pe-4 pb-4 text-center">
-                                            <figure
-                                                class="avatar ms-auto me-auto mb-0 mt--6 position-relative w75 z-index-1">
-                                                <img src="images/user-7.png" alt="image"
-                                                    class="float-right p-1 bg-white rounded-circle w-100" />
-                                            </figure>
-                                            <div class="clearfix"></div>
-                                            <h4 class="fw-700 font-xsss mt-2 mb-1">
-                                                Studio Express
-                                            </h4>
-                                            <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-2">
-                                                support@gmail.com
-                                            </p>
-                                            <span
-                                                class="live-tag mt-2 mb-0 bg-danger p-2 z-index-1 rounded-3 text-white font-xsssss text-uppersace fw-700 ls-3">LIVE</span>
-                                            <div class="clearfix mb-2"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="item">
-                                    <div
-                                        class="card w200 d-block border-0 shadow-xss rounded-xxl overflow-hidden mb-3 me-2 mt-3">
-                                        <div class="card-body position-relative h100 bg-image-cover bg-image-center"
-                                            style="background-image: url(images/coming-soon.png)"></div>
-                                        <div class="card-body d-block w-100 ps-4 pe-4 pb-4 text-center">
-                                            <figure
-                                                class="avatar ms-auto me-auto mb-0 mt--6 position-relative w75 z-index-1">
-                                                <img src="images/user-5.png" alt="image"
-                                                    class="float-right p-1 bg-white rounded-circle w-100" />
-                                            </figure>
-                                            <div class="clearfix"></div>
-                                            <h4 class="fw-700 font-xsss mt-2 mb-1">
-                                                Hendrix Stamp
-                                            </h4>
-                                            <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-2">
-                                                support@gmail.com
-                                            </p>
-                                            <span
-                                                class="live-tag mt-2 mb-0 bg-danger p-2 z-index-1 rounded-3 text-white font-xsssss text-uppersace fw-700 ls-3">LIVE</span>
-                                            <div class="clearfix mb-2"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="item">
-                                    <div
-                                        class="card w200 d-block border-0 shadow-xss rounded-xxl overflow-hidden mb-3 me-2 mt-3">
-                                        <div class="card-body position-relative h100 bg-image-cover bg-image-center"
-                                            style="background-image: url(images/bb-9.jpg)"></div>
-                                        <div class="card-body d-block w-100 ps-4 pe-4 pb-4 text-center">
-                                            <figure
-                                                class="avatar ms-auto me-auto mb-0 mt--6 position-relative w75 z-index-1">
-                                                <img src="images/user-6.png" alt="image"
-                                                    class="float-right p-1 bg-white rounded-circle w-100" />
-                                            </figure>
-                                            <div class="clearfix"></div>
-                                            <h4 class="fw-700 font-xsss mt-2 mb-1">
-                                                Mohannad Zitoun
-                                            </h4>
-                                            <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-2">
-                                                support@gmail.com
-                                            </p>
-                                            <span
-                                                class="live-tag mt-2 mb-0 bg-danger p-2 z-index-1 rounded-3 text-white font-xsssss text-uppersace fw-700 ls-3">LIVE</span>
-                                            <div class="clearfix mb-2"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                                @endforeach
                             </div>
-                        </div>
-
-
-
-                        <div class="card w-100 shadow-none bg-transparent bg-transparent-card border-0 p-0 mb-0">
-                            <div class="owl-carousel category-card owl-theme overflow-hidden nav-none">
-                                <div class="item">
-                                    <div
-                                        class="card w150 d-block border-0 shadow-xss rounded-3 overflow-hidden mb-3 me-2 mt-3">
-                                        <div class="card-body d-block w-100 ps-3 pe-3 pb-4 text-center">
-                                            <figure class="avatar ms-auto me-auto mb-0 position-relative w65 z-index-1">
-                                                <img src="images/user-11.png" alt="image"
-                                                    class="float-right p-0 bg-white rounded-circle w-100 shadow-xss" />
-                                            </figure>
-                                            <div class="clearfix"></div>
-                                            <h4 class="fw-700 font-xssss mt-3 mb-1">
-                                                Richard Bowers
-                                            </h4>
-                                            <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-3">
-                                                @macale343
-                                            </p>
-                                            <a href="#"
-                                                class="text-center p-2 lh-20 w100 ms-1 ls-3 d-inline-block rounded-xl bg-success font-xsssss fw-700 ls-lg text-white">FOLLOW</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="item">
-                                    <div
-                                        class="card w150 d-block border-0 shadow-xss rounded-3 overflow-hidden mb-3 me-2 mt-3">
-                                        <div class="card-body d-block w-100 ps-3 pe-3 pb-4 text-center">
-                                            <figure class="avatar ms-auto me-auto mb-0 position-relative w65 z-index-1">
-                                                <img src="images/user-9.png" alt="image"
-                                                    class="float-right p-0 bg-white rounded-circle w-100 shadow-xss" />
-                                            </figure>
-                                            <div class="clearfix"></div>
-                                            <h4 class="fw-700 font-xssss mt-3 mb-1">
-                                                David Goria
-                                            </h4>
-                                            <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-3">
-                                                @macale343
-                                            </p>
-                                            <a href="#"
-                                                class="text-center p-2 lh-20 w100 ms-1 ls-3 d-inline-block rounded-xl bg-success font-xsssss fw-700 ls-lg text-white">FOLLOW</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="item">
-                                    <div
-                                        class="card w150 d-block border-0 shadow-xss rounded-3 overflow-hidden mb-3 me-2 mt-3">
-                                        <div class="card-body d-block w-100 ps-3 pe-3 pb-4 text-center">
-                                            <figure class="avatar ms-auto me-auto mb-0 position-relative w65 z-index-1">
-                                                <img src="images/user-12.png" alt="image"
-                                                    class="float-right p-0 bg-white rounded-circle w-100 shadow-xss" />
-                                            </figure>
-                                            <div class="clearfix"></div>
-                                            <h4 class="fw-700 font-xssss mt-3 mb-1">
-                                                Vincent Parks
-                                            </h4>
-                                            <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-3">
-                                                @macale343
-                                            </p>
-                                            <a href="#"
-                                                class="text-center p-2 lh-20 w100 ms-1 ls-3 d-inline-block rounded-xl bg-success font-xsssss fw-700 ls-lg text-white">FOLLOW</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="item">
-                                    <div
-                                        class="card w150 d-block border-0 shadow-xss rounded-3 overflow-hidden mb-3 me-2 mt-3">
-                                        <div class="card-body d-block w-100 ps-3 pe-3 pb-4 text-center">
-                                            <figure class="avatar ms-auto me-auto mb-0 position-relative w65 z-index-1">
-                                                <img src="images/user-8.png" alt="image"
-                                                    class="float-right p-0 bg-white rounded-circle w-100 shadow-xss" />
-                                            </figure>
-                                            <div class="clearfix"></div>
-                                            <h4 class="fw-700 font-xssss mt-3 mb-1">
-                                                Studio Express
-                                            </h4>
-                                            <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-3">
-                                                @macale343
-                                            </p>
-                                            <a href="#"
-                                                class="text-center p-2 lh-20 w100 ms-1 ls-3 d-inline-block rounded-xl bg-success font-xsssss fw-700 ls-lg text-white">FOLLOW</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="item">
-                                    <div
-                                        class="card w150 d-block border-0 shadow-xss rounded-3 overflow-hidden mb-3 me-2 mt-3">
-                                        <div class="card-body d-block w-100 ps-3 pe-3 pb-4 text-center">
-                                            <figure class="avatar ms-auto me-auto mb-0 position-relative w65 z-index-1">
-                                                <img src="images/user-7.png" alt="image"
-                                                    class="float-right p-0 bg-white rounded-circle w-100 shadow-xss" />
-                                            </figure>
-                                            <div class="clearfix"></div>
-                                            <h4 class="fw-700 font-xssss mt-3 mb-1">
-                                                Aliqa Macale
-                                            </h4>
-                                            <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-3">
-                                                @macale343
-                                            </p>
-                                            <a href="#"
-                                                class="text-center p-2 lh-20 w100 ms-1 ls-3 d-inline-block rounded-xl bg-success font-xsssss fw-700 ls-lg text-white">FOLLOW</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        </div> --}}
 
 
 
@@ -647,60 +441,45 @@
                         <div class="card w-100 shadow-xss rounded-xxl border-0 mb-3">
                             <div class="card-body d-flex align-items-center p-4">
                                 <h4 class="fw-700 mb-0 font-xssss text-grey-900">
-                                    Friend Request
+                                    Friend Requests
                                 </h4>
-                                <a href="default-member.html" class="fw-600 ms-auto font-xssss text-primary">See all</a>
+                                <a href="{{ route('user.show.friends') }}"
+                                    class="fw-600 ms-auto font-xssss text-primary">See all</a>
                             </div>
-                            <div class="card-body d-flex pt-4 ps-4 pe-4 pb-0 border-top-xs bor-0">
-                                <figure class="avatar me-3">
-                                    <img src="images/user-7.png" alt="image" class="shadow-sm rounded-circle w45" />
-                                </figure>
-                                <h4 class="fw-700 text-grey-900 font-xssss mt-1">
-                                    Anthony Daugloi
-                                    <span class="d-block font-xssss fw-500 mt-1 lh-3 text-grey-500">12 mutual
-                                        friends</span>
-                                </h4>
-                            </div>
-                            <div class="card-body d-flex align-items-center pt-0 ps-4 pe-4 pb-4">
-                                <a href="#"
-                                    class="p-2 lh-20 w100 bg-primary-gradiant me-2 text-white text-center font-xssss fw-600 ls-1 rounded-xl">Confirm</a>
-                                <a href="#"
-                                    class="p-2 lh-20 w100 bg-grey text-grey-800 text-center font-xssss fw-600 ls-1 rounded-xl">Delete</a>
-                            </div>
-
-                            <div class="card-body d-flex pt-0 ps-4 pe-4 pb-0">
-                                <figure class="avatar me-3">
-                                    <img src="images/user-8.png" alt="image" class="shadow-sm rounded-circle w45" />
-                                </figure>
-                                <h4 class="fw-700 text-grey-900 font-xssss mt-1">
-                                    Mohannad Zitoun
-                                    <span class="d-block font-xssss fw-500 mt-1 lh-3 text-grey-500">12 mutual
-                                        friends</span>
-                                </h4>
-                            </div>
-                            <div class="card-body d-flex align-items-center pt-0 ps-4 pe-4 pb-4">
-                                <a href="#"
-                                    class="p-2 lh-20 w100 bg-primary-gradiant me-2 text-white text-center font-xssss fw-600 ls-1 rounded-xl">Confirm</a>
-                                <a href="#"
-                                    class="p-2 lh-20 w100 bg-grey text-grey-800 text-center font-xssss fw-600 ls-1 rounded-xl">Delete</a>
-                            </div>
-
-                            <div class="card-body d-flex pt-0 ps-4 pe-4 pb-0">
-                                <figure class="avatar me-3">
-                                    <img src="images/user-12.png" alt="image" class="shadow-sm rounded-circle w45" />
-                                </figure>
-                                <h4 class="fw-700 text-grey-900 font-xssss mt-1">
-                                    Mohannad Zitoun
-                                    <span class="d-block font-xssss fw-500 mt-1 lh-3 text-grey-500">12 mutual
-                                        friends</span>
-                                </h4>
-                            </div>
-                            <div class="card-body d-flex align-items-center pt-0 ps-4 pe-4 pb-4">
-                                <a href="#"
-                                    class="p-2 lh-20 w100 bg-primary-gradiant me-2 text-white text-center font-xssss fw-600 ls-1 rounded-xl">Confirm</a>
-                                <a href="#"
-                                    class="p-2 lh-20 w100 bg-grey text-grey-800 text-center font-xssss fw-600 ls-1 rounded-xl">Delete</a>
-                            </div>
+                            @forelse ($requests as $request)
+                                <div class="card-body d-flex pt-4 ps-4 pe-4 pb-0 border-top-xs bor-0">
+                                    <figure class="avatar me-3">
+                                        <img src="{{ $request->sender->profile && $request->sender->profile->profile_photo
+                                            ? asset('storage/profile_photos/' . $request->sender->profile->profile_photo)
+                                            : asset('assets/images/user-12.png') }}"
+                                            alt="image"
+                                            class="w-12 h-12 rounded-full object-cover object-top border shadow" />
+                                    </figure>
+                                    <h4 class="fw-700 text-grey-900 font-xssss mt-1">
+                                        {{ $request->sender->name }}
+                                        <span class="d-block font-xssss fw-500 mt-1 lh-3 text-grey-500">12 mutual
+                                            friends</span>
+                                    </h4>
+                                </div>
+                                <div class="card-body d-flex align-items-center pt-0 ps-4 pe-4 pb-4">
+                                    <a href="javascript:void(0);"
+                                        data-url="{{ route('user.friend.accept', $request->sender->id) }}"
+                                        class="confirm-request text-center p-2 flex-fill me-1 d-inline-block rounded-xl bg-primary font-xsssss fw-700 text-white">
+                                        Accept
+                                    </a>
+                                    <a href="javascript:void(0);"
+                                        data-url="{{ route('user.delete.request', $request->sender->id) }}"
+                                        class="delete-request text-center p-2 flex-fill ms-1 d-inline-block rounded-xl bg-light text-dark font-xsssss fw-700">
+                                        Delete
+                                    </a>
+                                </div>
+                            @empty
+                                <div class="card-body d-flex ps-4 pe-4 pb-0 border-top-xs bor-0">
+                                    <h4 class="fw-700 text-grey-900 font-xssss ">
+                                        No Requests
+                                    </h4>
+                                </div>
+                            @endforelse
                         </div>
 
                         <div class="card w-100 shadow-xss rounded-xxl border-0 p-0">
@@ -1160,6 +939,43 @@
                     error: function(xhr) {
                         console.error(xhr.responseText);
                     },
+                });
+            });
+            //send friend request
+            document.addEventListener("DOMContentLoaded", function() {
+                document.querySelectorAll(".send-request").forEach(function(button) {
+                    button.addEventListener("click", function(e) {
+                        e.preventDefault();
+
+                        let url = this.getAttribute("data-url");
+                        let btn = this; // keep reference to clicked button
+
+                        fetch(url, {
+                                method: "POST",
+                                headers: {
+                                    "X-CSRF-TOKEN": document.querySelector(
+                                        'meta[name="csrf-token"]').getAttribute("content"),
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({}) // user_id already passed in route
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // ✅ Replace "Add Friend" button with "Cancel Request"
+                                    btn.outerHTML = `
+                        <a href="javascript:void(0);"
+                            data-url="${btn.getAttribute("data-url").replace('send.request', 'cancel.request')}"
+                            class="cancel-request text-center p-2 lh-20 w100 ms-1 ls-3 d-inline-block rounded-xl bg-dark font-xsssss fw-700 ls-lg text-white">
+                            Cancel
+                        </a>
+                    `;
+                                } else {
+                                    alert(data.error);
+                                }
+                            })
+                            .catch(error => console.error("Error:", error));
+                    });
                 });
             });
         </script>
