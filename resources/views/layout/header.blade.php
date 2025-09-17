@@ -22,6 +22,14 @@
     <link rel="stylesheet" href="{{ asset('assets/css/emoji.css') }}" />
 
     <link rel="stylesheet" href="{{ asset('assets/css/lightbox.css') }}" />
+    <style>
+        .menu-icon.active i {
+            background-color: #007bff !important;
+            /* blue background */
+            color: #fff !important;
+            /* white icon */
+        }
+    </style>
     @stack('styles')
 </head>
 
@@ -52,16 +60,36 @@
                         class="bg-grey border-0 lh-32 pt-2 pb-2 ps-5 pe-3 font-xssss fw-500 rounded-xl w350 theme-dark-bg" />
                 </div>
             </form>
-            <a href="{{ route('home') }}" class="p-2 text-center ms-3 menu-icon center-menu-icon"><i
-                    class="feather-home font-lg alert-primary btn-round-lg theme-dark-bg text-current"></i></a>
-            <a href="default-storie.html" class="p-2 text-center ms-0 menu-icon center-menu-icon"><i
-                    class="feather-zap font-lg bg-greylight btn-round-lg theme-dark-bg text-grey-500"></i></a>
-            <a href="default-video.html" class="p-2 text-center ms-0 menu-icon center-menu-icon"><i
-                    class="feather-video font-lg bg-greylight btn-round-lg theme-dark-bg text-grey-500"></i></a>
-            <a href="{{ route('user.show.friends') }}" class="p-2 text-center ms-0 menu-icon center-menu-icon"><i
-                    class="feather-user font-lg bg-greylight btn-round-lg theme-dark-bg text-grey-500"></i></a>
-            <a href="shop-2.html" class="p-2 text-center ms-0 menu-icon center-menu-icon"><i
-                    class="feather-shopping-bag font-lg bg-greylight btn-round-lg theme-dark-bg text-grey-500"></i></a>
+            <a href="{{ route('home') }}"
+                class="p-2 text-center ms-3 menu-icon center-menu-icon {{ request()->routeIs('home') ? 'active' : '' }}">
+                <i
+                    class="feather-home font-lg btn-round-lg theme-dark-bg {{ request()->routeIs('home') ? 'alert-primary text-current' : 'bg-greylight text-grey-500' }}"></i>
+            </a>
+
+            <a href="{{ url('default-storie.html') }}"
+                class="p-2 text-center ms-0 menu-icon center-menu-icon {{ Request::is('default-storie.html') ? 'active' : '' }}">
+                <i
+                    class="feather-zap font-lg btn-round-lg theme-dark-bg {{ Request::is('default-storie.html') ? 'alert-primary text-current' : 'bg-greylight text-grey-500' }}"></i>
+            </a>
+
+            <a href="{{ url('default-video.html') }}"
+                class="p-2 text-center ms-0 menu-icon center-menu-icon {{ Request::is('default-video.html') ? 'active' : '' }}">
+                <i
+                    class="feather-video font-lg btn-round-lg theme-dark-bg {{ Request::is('default-video.html') ? 'alert-primary text-current' : 'bg-greylight text-grey-500' }}"></i>
+            </a>
+
+            <a href="{{ route('user.show.friends') }}"
+                class="p-2 text-center ms-0 menu-icon center-menu-icon {{ request()->routeIs('user.show.friends') ? 'active' : '' }}">
+                <i
+                    class="feather-user font-lg btn-round-lg theme-dark-bg {{ request()->routeIs('user.show.friends') ? 'alert-primary text-current' : 'bg-greylight text-grey-500' }}"></i>
+            </a>
+
+            <a href="{{ url('shop-2.html') }}"
+                class="p-2 text-center ms-0 menu-icon center-menu-icon {{ Request::is('shop-2.html') ? 'active' : '' }}">
+                <i
+                    class="feather-shopping-bag font-lg btn-round-lg theme-dark-bg {{ Request::is('shop-2.html') ? 'alert-primary text-current' : 'bg-greylight text-grey-500' }}"></i>
+            </a>
+
 
             <a href="#" class="p-2 text-center ms-auto menu-icon" id="dropdownMenu3" data-bs-toggle="dropdown"
                 aria-expanded="false"><span class="dot-count bg-warning"></span><i

@@ -40,4 +40,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('accept-friend/{senderId}', [FriendshipController::class, 'acceptFriend'])->name('user.friend.accept');
     //this is to delete request from friend request section the upper cancel would have confilicted the sender and receiver id so making the following
     Route::post('delete-request/{senderId}', [FriendshipController::class, 'deleteRequest'])->name('user.delete.request');
+    Route::post('un-friend/{receiverId}', [FriendshipController::class, 'unFriend'])->name('user.unfriend.request');
 });

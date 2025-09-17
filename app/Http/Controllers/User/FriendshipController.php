@@ -107,4 +107,25 @@ class FriendshipController extends Controller
             'message' => 'Friend request deleted successfully.'
         ]);
     }
+    public function unFriend($receiverId)
+    {
+        $userId = auth_user()->id;
+
+        // Delete friendship both ways
+        Friendship::where(function ($query) use ($userId, $receiverId) {
+            $query->where('sender_id', $userId)
+                ->where('receiver_id', $receiverId);
+        })
+            ->orWhere(function ($query) use ($userId, $receiverId) {
+                $query->where('sender_id', $receiverId)
+                    ->where('receiver_id', $userId);
+            })
+            ->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Unfriended successfully',
+            'user_id' => $receiverId,
+        ]);
+    }
 }

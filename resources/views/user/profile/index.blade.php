@@ -33,23 +33,25 @@
                                         class="w-full h-[250px] rounded-xl border object-cover">
                                 @endif
 
-                                <!-- Edit Cover Button + Form -->
-                                <form action="{{ route('user.updateProfile') }}" method="POST"
-                                    enctype="multipart/form-data" class="absolute bottom-3 right-3 ajax-form">
-                                    @csrf
-                                    @method('PUT')
+                                @if ($user->id == auth_user()->id)
+                                    <!-- Edit Cover Button + Form -->
+                                    <form action="{{ route('user.updateProfile') }}" method="POST"
+                                        enctype="multipart/form-data" class="absolute bottom-3 right-3 ajax-form">
+                                        @csrf
+                                        @method('PUT')
 
-                                    <!-- Hidden File Input -->
-                                    <input type="file" name="cover_photo" id="cover_photo" class="hidden"
-                                        onchange="$(this).closest('form').submit()">
+                                        <!-- Hidden File Input -->
+                                        <input type="file" name="cover_photo" id="cover_photo" class="hidden"
+                                            onchange="$(this).closest('form').submit()">
 
-                                    <!-- Custom Button -->
-                                    <label for="cover_photo"
-                                        class="flex items-center bg-gray-600 bg-opacity-50 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-opacity-70">
-                                        <i class="feather-camera me-2"></i>
-                                        Edit Cover
-                                    </label>
-                                </form>
+                                        <!-- Custom Button -->
+                                        <label for="cover_photo"
+                                            class="flex items-center bg-gray-600 bg-opacity-50 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-opacity-70">
+                                            <i class="feather-camera me-2"></i>
+                                            Edit Cover
+                                        </label>
+                                    </form>
+                                @endif
                             </div>
 
                             <div class="card-body p-0 position-relative">
@@ -65,24 +67,25 @@
                                             class="p-1 bg-white rounded-circle object-top object-cover"
                                             style="width:100px; height:100px;">
                                     @endif
+                                    @if ($user->id == auth_user()->id)
+                                        <!-- Edit Profile Photo Button -->
+                                        <form action="{{ route('user.updateProfile') }}" method="POST"
+                                            enctype="multipart/form-data"
+                                            class="absolute bottom-0 right-0 transform translate-x-2 translate-y-2 ajax-form ">
+                                            @csrf
+                                            @method('PUT')
 
-                                    <!-- Edit Profile Photo Button -->
-                                    <form action="{{ route('user.updateProfile') }}" method="POST"
-                                        enctype="multipart/form-data"
-                                        class="absolute bottom-0 right-0 transform translate-x-2 translate-y-2 ajax-form ">
-                                        @csrf
-                                        @method('PUT')
+                                            <!-- Hidden File Input -->
+                                            <input type="file" name="profile_photo" id="profile_photo" class="hidden"
+                                                onchange="$(this).closest('form').submit()">
 
-                                        <!-- Hidden File Input -->
-                                        <input type="file" name="profile_photo" id="profile_photo" class="hidden"
-                                            onchange="$(this).closest('form').submit()">
-
-                                        <!-- Camera Icon Button -->
-                                        <label for="profile_photo"
-                                            class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-600 text-white cursor-pointer hover:bg-gray-800">
-                                            <i class="feather-camera text-sm"></i>
-                                        </label>
-                                    </form>
+                                            <!-- Camera Icon Button -->
+                                            <label for="profile_photo"
+                                                class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-600 text-white cursor-pointer hover:bg-gray-800">
+                                                <i class="feather-camera text-sm"></i>
+                                            </label>
+                                        </form>
+                                    @endif
                                 </figure>
 
                                 <h4 class="fw-700 font-sm mt-2 mb-lg-5 mb-4 pl-15">{{ $user->name }} <span
@@ -108,11 +111,11 @@
                                             </a>
                                         @elseif ($checkFriend && $checkFriend->status == 'accepted')
                                             {{-- They are already friends --}}
-                                            <button
-                                                class="bg-secondary p-3 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3"
-                                                disabled>
-                                                Friends
-                                            </button>
+                                            <a href="javascript:void(0);"
+                                                data-url="{{ route('user.unfriend.request', $user->id) }}"
+                                                class="un-friend bg-dark p-3 z-index-1 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3 mx-1">
+                                                Unfriend
+                                            </a>
                                         @else
                                             {{-- No friendship exists yet --}}
                                             <a href="javascript:void(0);"
@@ -342,10 +345,12 @@
                                             rhoncus
                                         </p>
                                     @endif
-                                    <button onclick="toggleBioEdit(true)"
-                                        class="w-full bg-gray-300 rounded-lg hover:bg-gray-400">
-                                        Edit Bio
-                                    </button>
+                                    @if ($user->id == auth_user()->id)
+                                        <button onclick="toggleBioEdit(true)"
+                                            class="w-full bg-gray-300 rounded-lg hover:bg-gray-400">
+                                            Edit Bio
+                                        </button>
+                                    @endif
                                 </div>
 
                                 <!-- Editable Form (hidden by default) -->
@@ -372,14 +377,17 @@
                                         </div>
                                     </form>
                                 </div>
-                                <!-- Static Display -->
-                                <div id="detailsDisplay" class="mb-2">
 
-                                    <button onclick="toggleDetailsEdit(true)"
-                                        class="w-full bg-gray-300 rounded-lg hover:bg-gray-400 mt-2">
-                                        Edit Details
-                                    </button>
-                                </div>
+                                <!-- Static Display -->
+                                @if ($user->id == auth_user()->id)
+                                    <div id="detailsDisplay" class="mb-2">
+
+                                        <button onclick="toggleDetailsEdit(true)"
+                                            class="w-full bg-gray-300 rounded-lg hover:bg-gray-400 mt-2">
+                                            Edit Details
+                                        </button>
+                                    </div>
+                                @endif
 
                                 <!-- Editable Form -->
                                 <div id="detailsEdit" class="hidden">
@@ -425,56 +433,57 @@
                                     </form>
                                 </div>
 
-                                <!-- Add Featured Button -->
+                                @if ($user->id == auth_user()->id)
+                                    <!-- Add Featured Button -->
+                                    <div class="add_featured ">
+                                        <button onclick="toggleFeaturedCard(true)"
+                                            class="w-full bg-gray-300 rounded-lg hover:bg-gray-400">
+                                            Add Featured
+                                        </button>
 
-                                <div class="add_featured ">
-                                    <button onclick="toggleFeaturedCard(true)"
-                                        class="w-full bg-gray-300 rounded-lg hover:bg-gray-400">
-                                        Add Featured
-                                    </button>
+                                        <!-- Featured Popup -->
+                                        <div id="featuredCardWrapper"
+                                            class="hidden fixed inset-0 flex items-center justify-center bg-opacity-50 backdrop-blur-sm z-50 p-6">
 
-                                    <!-- Featured Popup -->
-                                    <div id="featuredCardWrapper"
-                                        class="hidden fixed inset-0 flex items-center justify-center bg-opacity-50 backdrop-blur-sm z-50 p-6">
+                                            <!-- Card -->
+                                            <div id="featuredCard"
+                                                class="bg-white rounded-2xl shadow-lg w-full max-w-md p-6 relative transform transition-all duration-300 scale-95">
 
-                                        <!-- Card -->
-                                        <div id="featuredCard"
-                                            class="bg-white rounded-2xl shadow-lg w-full max-w-md p-6 relative transform transition-all duration-300 scale-95">
+                                                <!-- Close button -->
+                                                <button onclick="toggleFeaturedCard(false)"
+                                                    class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold">
+                                                    ✕
+                                                </button>
 
-                                            <!-- Close button -->
-                                            <button onclick="toggleFeaturedCard(false)"
-                                                class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold">
-                                                ✕
-                                            </button>
-
-                                            <!-- Heading -->
-                                            <div class="profile_heading mb-4">
-                                                <p class="text-xl font-bold text-center">Add Featured</p>
-                                                <hr>
-                                            </div>
-
-                                            <!-- Featured Form -->
-                                            <form action="" method="POST" enctype="multipart/form-data">
-                                                @csrf
-
-                                                <label class="block font-semibold mb-2">Upload Post / Image</label>
-                                                <input type="file" name="featured" accept="image/*"
-                                                    class="w-full border rounded-md px-3 py-2 mb-4">
-
-                                                <label class="block font-semibold mb-2">Description</label>
-                                                <textarea name="description" placeholder="Write something..."
-                                                    class="w-full min-h-[100px] border rounded-md px-3 py-2 mb-4"></textarea>
-
-                                                <div class="flex justify-end">
-                                                    <button type="submit"
-                                                        class="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                                                        Save Featured
-                                                    </button>
+                                                <!-- Heading -->
+                                                <div class="profile_heading mb-4">
+                                                    <p class="text-xl font-bold text-center">Add Featured</p>
+                                                    <hr>
                                                 </div>
-                                            </form>
+
+                                                <!-- Featured Form -->
+                                                <form action="" method="POST" enctype="multipart/form-data">
+                                                    @csrf
+
+                                                    <label class="block font-semibold mb-2">Upload Post / Image</label>
+                                                    <input type="file" name="featured" accept="image/*"
+                                                        class="w-full border rounded-md px-3 py-2 mb-4">
+
+                                                    <label class="block font-semibold mb-2">Description</label>
+                                                    <textarea name="description" placeholder="Write something..."
+                                                        class="w-full min-h-[100px] border rounded-md px-3 py-2 mb-4"></textarea>
+
+                                                    <div class="flex justify-end">
+                                                        <button type="submit"
+                                                            class="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                                            Save Featured
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endif
 
                             </div>
 
@@ -738,8 +747,9 @@
                                         class="d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss">
                                         <i
                                             class="feather-message-circle text-dark text-grey-900 btn-round-sm font-lg me-1"></i>
-                                        Comment
+                                        Comment ({{ $post->comments_count }})
                                     </a>
+
 
                                     <!-- Comments Popup -->
                                     <div id="commentsPopup"
@@ -773,20 +783,23 @@
                                                             <div class="bg-light p-2 rounded">
                                                                 <strong>{{ $comment->user->name }}</strong><br>
                                                                 {{ $comment->content }}
+                                                                @if ($comment->user_id == auth_user()->id)
+                                                                    <form
+                                                                        action="{{ route('user.delete.comment', $comment->id) }}"
+                                                                        method="POST"
+                                                                        class="delete-comment-form d-inline">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit"
+                                                                            class="btn btn-link p-0 text-danger">
+                                                                            <img src="{{ asset('assets/images/delete-icon.svg') }}"
+                                                                                alt="delete"
+                                                                                style="width:20px; height:20px;"
+                                                                                class="mx-3">
+                                                                        </button>
+                                                                    </form>
+                                                                @endif
 
-                                                                <form
-                                                                    action="{{ route('user.delete.comment', $comment->id) }}"
-                                                                    method="POST" class="delete-comment-form d-inline">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="submit"
-                                                                        class="btn btn-link p-0 text-danger">
-                                                                        <img src="{{ asset('assets/images/delete-icon.svg') }}"
-                                                                            alt="delete"
-                                                                            style="width:20px; height:20px;"
-                                                                            class="mx-3">
-                                                                    </button>
-                                                                </form>
                                                             </div>
 
                                                             <small
@@ -1177,6 +1190,34 @@
                             })
                             .catch(error => console.error("Error:", error));
                     });
+                });
+            });
+            //unfriend
+            $(document).on("click", ".un-friend", function(e) {
+                e.preventDefault();
+
+                let button = $(this);
+                let url = button.data("url");
+
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success: function(response) {
+                        // Replace Unfriend button with Add Friend button
+                        button.replaceWith(`
+                <a href="javascript:void(0);"
+                   data-url="/send-request/${response.user_id}"
+                   class="send-request bg-success p-3 z-index-1 rounded-3 text-white font-xsssss text-uppercase fw-700 ls-3">
+                   Add Friend
+                </a>
+            `);
+                    },
+                    error: function() {
+                        alert("Something went wrong. Try again.");
+                    }
                 });
             });
         </script>

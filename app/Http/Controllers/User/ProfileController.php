@@ -14,9 +14,13 @@ class ProfileController extends Controller
 {
     public function index($id)
     {
-        $user = User::with(['profile', 'posts' => function ($query) {
-            $query->withCount('likes')->with('likes.user');
-        }])->find($id);
+        $user = User::with([
+            'profile',
+            'posts' => function ($query) {
+                $query->withCount(['likes', 'comments']) // ✅ counts both likes and comments
+                    ->with(['likes.user', 'comments.user']); // eager load likes + comments users
+            }
+        ])->find($id);
         $checkFriend = Friendship::where(function ($q) use ($id) {
             $q->where('sender_id', auth_user()->id)
                 ->where('receiver_id', $id);
