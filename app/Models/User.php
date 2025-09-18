@@ -118,6 +118,30 @@ class User extends Authenticatable implements MustVerifyEmail
         return $query->whereNotIn('id', $friendIds);
     }
 
+    //these are to fetch the friends list of logged in user
+    // Friendships where I sent the request
+    public function friendsOfMine()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'sender_id', 'receiver_id')
+            ->wherePivot('status', 'accepted')
+            ->with('profile');
+    }
+
+    // Friendships where I received the request
+    public function friendOf()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'receiver_id', 'sender_id')
+            ->wherePivot('status', 'accepted')
+            ->with('profile');
+    }
+
+    // Merge both to get all friends
+    public function getFriendsAttribute()
+    {
+        return $this->friendsOfMine->merge($this->friendOf);
+    }
+
+
 
 
     protected static function booted(): void

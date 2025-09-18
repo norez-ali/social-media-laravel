@@ -38,6 +38,8 @@ class HomeController extends Controller
             ->take(8)
             ->get();
 
+        $user = auth_user();        // logged-in user
+        $friends = $user->friends;     // ✅ full friends list (both sides)
 
 
         return view('index', get_defined_vars());

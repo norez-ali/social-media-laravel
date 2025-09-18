@@ -32,6 +32,9 @@ class ProfileController extends Controller
             ->first(); // returns null if no friendship
 
 
+        $friends = $user->friends;     // ✅ full friends list (both sides)
+
+
 
         return view('user.profile.index', get_defined_vars());
     }
