@@ -14,8 +14,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('user-profile/{id}', [ProfileController::class, 'index'])->name('user.profile');
     Route::put('update-profile', [ProfileController::class, 'updateProfile'])->name('user.updateProfile');
     Route::get('user-photos/{id}', [ProfileController::class, 'photos'])->name('user.profile.photos');
-    Route::get('user-profile-about/{id}', [ProfileController::class, 'profileAjax'])->name('user.profile.ajax');
     //nav routes for ajax
+    Route::get('user-profile-about/{id}', [ProfileController::class, 'profileAjax'])->name('user.profile.ajax');
+    Route::get('user-friends/{id}', [ProfileController::class, 'showFriends'])->name('user.profile.friends');
 
     // Route for creating a post
     Route::post('create-post', [PostController::class, 'store'])->name('user.create.post');

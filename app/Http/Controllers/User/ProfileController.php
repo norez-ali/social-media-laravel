@@ -124,4 +124,15 @@ class ProfileController extends Controller
         ])->find($id);
         return view('user.profile.nav.about', get_defined_vars());
     }
+    public function showFriends($id)
+    {
+        $user = User::with('profile')->find($id);
+        $friends = $user->friends;     // ✅ full friends list (both sides)
+        $suggested_users = User::with('profile')
+            ->suggestions($id) // matches the scopeSuggestions
+            ->inRandomOrder()             // randomize
+            ->take(8)
+            ->get();
+        return view('user.profile.nav.friends', get_defined_vars());
+    }
 }

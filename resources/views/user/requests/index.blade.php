@@ -31,7 +31,7 @@
                                             <img src="{{ $request->sender->profile && $request->sender->profile->profile_photo
                                                 ? asset('storage/profile_photos/' . $request->sender->profile->profile_photo)
                                                 : asset('assets/images/user-12.png') }}"
-                                                class="w-100 h-100 object-fit object-cover" alt="profile-photo">
+                                                class="w-100 h-100 object-fit object-cover object-top" alt="profile-photo">
                                         </div>
 
 

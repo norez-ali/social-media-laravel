@@ -92,8 +92,12 @@
                                     @php
                                         $friends_count = count($friends);
                                     @endphp
-                                    <span
-                                        class="fw-500 font-xssss text-grey-500 mt-1 mb-3 d-block">{{ $friends_count . ' friends' }}</span>
+                                    <a href="{{ route('user.profile.friends', $user->id) }}"
+                                        data-url="{{ route('user.profile.friends', $user->id) }}"
+                                        class="friends-count-link fw-500 font-xssss text-grey-500 mt-1 mb-3 d-block hover:underline">
+                                        {{ $friends_count . ' friends' }}
+                                    </a>
+
                                 </h4>
                                 <div
                                     class="d-flex align-items-center justify-content-center position-absolute-md right-15 top-0 me-2">
@@ -298,7 +302,8 @@
                                     </li>
                                     <li class="list-inline-item me-5"><a
                                             class="link fw-700 font-xssss text-grey-500 pt-3 pb-3 ls-1 d-inline-block"
-                                            href="#navtabs2" data-toggle="tab">Friends</a></li>
+                                            href="{{ route('user.profile.friends', $user->id) }}"
+                                            data-toggle="tab">Friends</a></li>
                                     <li class="list-inline-item me-5"><a
                                             class="link fw-700 font-xssss text-grey-500 pt-3 pb-3 ls-1 d-inline-block"
                                             href="#navtabs3" data-toggle="tab">Discussion</a></li>
@@ -365,6 +370,28 @@
 
                 // Optional: load first tab automatically
                 $(".nav-tabs a.active").trigger("click");
+            });
+            $(document).on('click', '.friends-count-link', function(e) {
+                e.preventDefault();
+
+                // Get the AJAX URL from the href
+                let url = $(this).attr('href');
+
+                // Load the content via AJAX
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(response) {
+                        $('#tabContent').html(response);
+                    }
+                });
+
+                // Activate the Friends tab visually
+                // Remove 'active' from all tabs
+                $('.nav-tabs .active').removeClass('active');
+
+                // Add 'active' to the Friends tab
+                $('.nav-tabs a[href="' + url + '"]').addClass('active');
             });
         </script>
     @endpush
