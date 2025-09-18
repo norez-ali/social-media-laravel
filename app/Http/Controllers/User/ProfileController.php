@@ -103,13 +103,25 @@ class ProfileController extends Controller
             'bio'           => $profile->bio,
         ]);
     }
-    public function photos()
+    public function photos($id)
     {
 
         $user = User::with(['profile', 'posts' => function ($query) {
             $query->where('media_type', 'image');
-        }])->find(Auth::id());
+        }])->find($id);
 
         return view('user.profile.nav.photos', get_defined_vars());
+    }
+    //this function will call when ajax hits
+    public function profileAjax($id)
+    {
+        $user = User::with([
+            'profile',
+            'posts' => function ($query) {
+                $query->withCount(['likes', 'comments']) // ✅ counts both likes and comments
+                    ->with(['likes.user', 'comments.user']); // eager load likes + comments users
+            }
+        ])->find($id);
+        return view('user.profile.nav.about', get_defined_vars());
     }
 }
