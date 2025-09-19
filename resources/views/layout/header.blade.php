@@ -40,7 +40,8 @@
         <!-- navigation top-->
         <div class="nav-header bg-white shadow-xs border-0">
             <div class="nav-top">
-                <a href="{{ route('home') }}"><i class="feather-zap text-success display1-size me-2 ms-0"></i><span
+                <a href="{{ route('ajax.home') }}" class="ajax-icon"><i
+                        class="feather-zap text-success display1-size me-2 ms-0 "></i><span
                         class="d-inline-block fredoka-font ls-3 fw-600 text-current font-xxl logo-text mb-0">Sociala.
                     </span>
                 </a>
@@ -60,32 +61,32 @@
                         class="bg-grey border-0 lh-32 pt-2 pb-2 ps-5 pe-3 font-xssss fw-500 rounded-xl w350 theme-dark-bg" />
                 </div>
             </form>
-            <a href="{{ route('home') }}"
-                class="p-2 text-center ms-3 menu-icon center-menu-icon {{ request()->routeIs('home') ? 'active' : '' }}">
+            <a href="{{ route('ajax.home') }}"
+                class="p-2 text-center ms-3 menu-icon center-menu-icon ajax-home {{ request()->routeIs('ajax.home') ? 'active' : '' }}">
                 <i
-                    class="feather-home font-lg btn-round-lg theme-dark-bg {{ request()->routeIs('home') ? 'alert-primary text-current' : 'bg-greylight text-grey-500' }}"></i>
+                    class="feather-home font-lg btn-round-lg theme-dark-bg  {{ request()->routeIs('home') ? 'alert-primary text-current' : 'bg-greylight text-grey-500' }}"></i>
             </a>
 
             <a href="{{ url('default-storie.html') }}"
-                class="p-2 text-center ms-0 menu-icon center-menu-icon {{ Request::is('default-storie.html') ? 'active' : '' }}">
+                class="p-2 text-center ms-0 menu-icon center-menu-icon ajax-home {{ Request::is('default-storie.html') ? 'active' : '' }}">
                 <i
                     class="feather-zap font-lg btn-round-lg theme-dark-bg {{ Request::is('default-storie.html') ? 'alert-primary text-current' : 'bg-greylight text-grey-500' }}"></i>
             </a>
 
             <a href="{{ url('default-video.html') }}"
-                class="p-2 text-center ms-0 menu-icon center-menu-icon {{ Request::is('default-video.html') ? 'active' : '' }}">
+                class="p-2 text-center ms-0 menu-icon center-menu-icon ajax-home {{ Request::is('default-video.html') ? 'active' : '' }}">
                 <i
                     class="feather-video font-lg btn-round-lg theme-dark-bg {{ Request::is('default-video.html') ? 'alert-primary text-current' : 'bg-greylight text-grey-500' }}"></i>
             </a>
 
             <a href="{{ route('user.show.friends') }}"
-                class="p-2 text-center ms-0 menu-icon center-menu-icon {{ request()->routeIs('user.show.friends') ? 'active' : '' }}">
+                class="p-2 text-center ms-0 menu-icon center-menu-icon ajax-home {{ request()->routeIs('user.show.friends') ? 'active' : '' }}">
                 <i
                     class="feather-user font-lg btn-round-lg theme-dark-bg {{ request()->routeIs('user.show.friends') ? 'alert-primary text-current' : 'bg-greylight text-grey-500' }}"></i>
             </a>
 
             <a href="{{ url('shop-2.html') }}"
-                class="p-2 text-center ms-0 menu-icon center-menu-icon {{ Request::is('shop-2.html') ? 'active' : '' }}">
+                class="p-2 text-center ms-0 menu-icon center-menu-icon ajax-home {{ Request::is('shop-2.html') ? 'active' : '' }}">
                 <i
                     class="feather-shopping-bag font-lg btn-round-lg theme-dark-bg {{ Request::is('shop-2.html') ? 'alert-primary text-current' : 'bg-greylight text-grey-500' }}"></i>
             </a>

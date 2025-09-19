@@ -289,40 +289,129 @@
              });
          });
          //send friend request
-         document.addEventListener("DOMContentLoaded", function() {
-             document.querySelectorAll(".send-request").forEach(function(button) {
-                 button.addEventListener("click", function(e) {
-                     e.preventDefault();
+         document.addEventListener("click", function(e) {
+             let btn = e.target.closest(".send-request, .cancel-request");
+             if (!btn) return;
 
-                     let url = this.getAttribute("data-url");
-                     let btn = this; // keep reference to clicked button
+             e.preventDefault();
 
-                     fetch(url, {
-                             method: "POST",
-                             headers: {
-                                 "X-CSRF-TOKEN": document.querySelector(
-                                     'meta[name="csrf-token"]').getAttribute("content"),
-                                 "Content-Type": "application/json",
-                             },
-                             body: JSON.stringify({}) // user_id already passed in route
-                         })
-                         .then(response => response.json())
-                         .then(data => {
-                             if (data.success) {
-                                 // ✅ Replace "Add Friend" button with "Cancel Request"
-                                 btn.outerHTML = `
-                        <a href="javascript:void(0);"
-                            data-url="${btn.getAttribute("data-url").replace('send.request', 'cancel.request')}"
-                            class="cancel-request text-center p-2 lh-20 w100 ms-1 ls-3 d-inline-block rounded-xl bg-dark font-xsssss fw-700 ls-lg text-white">
-                            Cancel
-                        </a>
-                    `;
-                             } else {
-                                 alert(data.error);
-                             }
-                         })
-                         .catch(error => console.error("Error:", error));
-                 });
+             // Send Request
+             if (btn.classList.contains("send-request")) {
+                 fetch(btn.dataset.sendUrl, {
+                         method: "POST",
+                         headers: {
+                             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                 "content"),
+                             "Content-Type": "application/json",
+                         },
+                         body: JSON.stringify({})
+                     })
+                     .then(res => res.json())
+                     .then(data => {
+                         if (data.success) {
+                             btn.outerHTML = `
+                    <a href="javascript:void(0);"
+                       data-send-url="${btn.dataset.sendUrl}"
+                       data-cancel-url="${btn.dataset.cancelUrl}"
+                       class="cancel-request text-center p-2 lh-20 w100 ms-auto ls-3 d-inline-block rounded-xl bg-dark font-xsssss fw-700 ls-lg text-white h-100">
+                       Cancel
+                    </a>
+                `;
+                         }
+                     });
+             }
+
+             // Cancel Request
+             if (btn.classList.contains("cancel-request")) {
+                 fetch(btn.dataset.cancelUrl, {
+                         method: "POST",
+                         headers: {
+                             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                 "content"),
+                             "Content-Type": "application/json",
+                         },
+                         body: JSON.stringify({})
+                     })
+                     .then(res => res.json())
+                     .then(data => {
+                         if (data.success) {
+                             btn.outerHTML = `
+                    <a href="javascript:void(0);"
+                       data-send-url="${btn.dataset.sendUrl}"
+                       data-cancel-url="${btn.dataset.cancelUrl}"
+                       class="send-request text-center p-2 lh-20 w100 ms-auto ls-3 d-inline-block rounded-xl bg-success font-xsssss fw-700 ls-lg text-white h-100">
+                       Add Friend
+                    </a>
+                `;
+                         }
+                     });
+             }
+         });
+
+
+
+
+         //for toggling nav
+         $(document).on('click', '.ajax-home', function(e) {
+             e.preventDefault();
+
+             let url = $(this).attr('href');
+             let $this = $(this);
+
+             $.ajax({
+                 url: url,
+                 type: "GET",
+                 beforeSend: function() {
+                     $(".content").html('<div class="p-5 text-center">Loading...</div>');
+                 },
+                 success: function(data) {
+                     // Load new content
+                     $(".content").html(data);
+
+                     // Update URL without reload
+                     window.history.pushState(null, "", url);
+
+                     // Remove active class from all tabs
+                     $(".ajax-home").removeClass("active");
+                     $(".ajax-home i").removeClass("alert-primary text-current")
+                         .addClass("bg-greylight text-grey-500");
+
+                     // Add active class to the clicked one
+                     $this.addClass("active");
+                     $this.find("i").removeClass("bg-greylight text-grey-500")
+                         .addClass("alert-primary text-current");
+                 },
+                 error: function() {
+                     $(".content").html(
+                         '<div class="p-5 text-center text-danger">Error loading page.</div>');
+                 }
+             });
+         });
+         //for icon only
+         $(document).on('click', '.ajax-icon', function(e) {
+             e.preventDefault();
+
+             let url = $(this).attr('href');
+             let $this = $(this);
+
+             $.ajax({
+                 url: url,
+                 type: "GET",
+                 beforeSend: function() {
+                     $(".content").html('<div class="p-5 text-center">Loading...</div>');
+                 },
+                 success: function(data) {
+                     // Load new content
+                     $(".content").html(data);
+
+                     // Update URL without reload
+                     window.history.pushState(null, "", url);
+
+                 },
+                 error: function() {
+                     $(".content").html(
+                         '<div class="p-5 text-center text-danger">Error loading page.</div>');
+                 }
              });
          });
      </script>

@@ -54,14 +54,17 @@ class FriendshipController extends Controller
             'error' => 'No friend request found to cancel.'
         ], 404);
     }
-    public function showFriends()
+    public function showFriends(Request $request)
     {
         $requests = Friendship::with(['sender.profile'])
             ->where('receiver_id', auth_user()->id)   // current user is the receiver
             ->where('status', 'pending')           // only pending requests
             ->get();
+        if ($request->ajax()) {
 
-        return view('user.requests.index', get_defined_vars());
+            return view('user.requests.index', get_defined_vars());
+        }
+        return view('user.requests.search-bar-request', get_defined_vars());
     }
     public function acceptFriend($senderId)
     {

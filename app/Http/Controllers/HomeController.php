@@ -44,4 +44,40 @@ class HomeController extends Controller
 
         return view('index', get_defined_vars());
     }
+    //with ajax
+    public function ajaxHome(Request $request)
+    {
+
+        $users = User::with([
+            'profile',
+            'stories' => function ($query) {
+                $query->where('expires_at', '>', now())  // only valid stories
+                    ->latest()
+                    ->limit(1); // ✅ only the first/latest
+            },
+            'posts' => function ($query) {
+                $query->withCount(['likes', 'comments'])
+                    ->with(['likes.user', 'comments.user.profile']);
+            },
+        ])->get();
+
+        $requests = Friendship::with(['sender.profile'])
+            ->where('receiver_id', auth_user()->id)   // current user is the receiver
+            ->where('status', 'pending')           // only pending requests
+            ->get();
+
+        $suggested_users = User::with('profile')
+            ->suggestions(auth_user()->id) // matches the scopeSuggestions
+            ->inRandomOrder()             // randomize
+            ->take(8)
+            ->get();
+
+        $user = auth_user();        // logged-in user
+        $friends = $user->friends;     // ✅ full friends list (both sides)
+
+        if ($request->ajax()) {
+            return view('home', get_defined_vars());
+        }
+        return view('index', get_defined_vars());
+    }
 }

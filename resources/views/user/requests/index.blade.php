@@ -1,5 +1,4 @@
-@extends('layout.main')
-@section('content')
+<div>
     @push('title')
         <title>Sociala. friend-requests</title>
     @endpush
@@ -27,11 +26,13 @@
                                     <div class="card border-0 shadow-xss rounded-3 overflow-hidden h-100">
 
                                         <!-- Image Cover -->
-                                        <div class="card-img-top position-relative" style="height:180px; overflow:hidden;">
+                                        <div class="card-img-top position-relative"
+                                            style="height:180px; overflow:hidden;">
                                             <img src="{{ $request->sender->profile && $request->sender->profile->profile_photo
                                                 ? asset('storage/profile_photos/' . $request->sender->profile->profile_photo)
                                                 : asset('assets/images/user-12.png') }}"
-                                                class="w-100 h-100 object-fit object-cover object-top" alt="profile-photo">
+                                                class="w-100 h-100 object-fit object-cover object-top"
+                                                alt="profile-photo">
                                         </div>
 
 
@@ -142,4 +143,5 @@
             });
         </script>
     @endpush
-@endsection
+
+</div>
