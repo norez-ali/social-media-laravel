@@ -22,12 +22,13 @@
                                  Stories</span></a>
                      </li>
                      <li>
-                         <a href="default-group.html" class="nav-content-bttn open-font"><i
-                                 class="feather-zap btn-round-md bg-mini-gradiant me-3"></i><span>Popular
+                         <a href="{{ route('user.popular.group') }}" class="nav-content-bttn open-font left-side"><i
+                                 class="feather-zap btn-round-md bg-mini-gradiant me-3 "></i><span>Popular
                                  Groups</span></a>
                      </li>
                      <li>
-                         <a href="{{ route('user.profile', auth_user()->id) }}" class="nav-content-bttn open-font"><i
+                         <a href="{{ route('user.profile', auth_user()->id) }}"
+                             class="nav-content-bttn open-font left-side"><i
                                  class="feather-user btn-round-md bg-primary-gradiant me-3"></i><span>Author Profile
                              </span></a>
                      </li>

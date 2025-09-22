@@ -9,6 +9,7 @@ use App\Models\User\Profile;
 use App\Models\User\Story;
 use App\Models\User\StoryComment;
 use App\Models\User\Friendship;
+use App\Models\User\Group\Group;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -140,8 +141,18 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->friendsOfMine->merge($this->friendOf);
     }
+    // groups
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_user')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
 
-
+    public function createdGroups()
+    {
+        return $this->hasMany(Group::class);
+    }
 
 
     protected static function booted(): void

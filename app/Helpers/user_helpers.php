@@ -16,3 +16,13 @@ if (! function_exists('all_users')) {
         return User::all();
     }
 }
+if (! function_exists('auth_profile')) {
+    function auth_profile()
+    {
+        if (!auth()->check()) {
+            return null; // not logged in
+        }
+
+        return auth()->user()->profile;
+    }
+}

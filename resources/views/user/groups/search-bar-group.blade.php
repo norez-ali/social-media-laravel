@@ -2,17 +2,19 @@
 
 @section('content')
     <div class="content">
-        @include('home')
+        @include('user.groups.index')
+
     </div>
     @push('scripts')
-        {{-- <script>
+        <script>
             $(document).ready(function() {
-                // Catch ALL <a> with class .group (inside your Create Group card)
-                $(document).on("click", ".card .group", function(e) {
-                    e.preventDefault(); // stop normal redirect
-                    e.stopPropagation(); // prevent bubbling
+                // Catch ALL <a> inside .nav-wrap with class .left-nav
+                $(document).on("click", ".nav-wrap .left-side", function(e) {
+                    e.preventDefault(); // stop browser from reloading
+                    e.stopPropagation(); // avoid bubbling
 
-                    let url = $(this).attr("href"); // get the href dynamically
+                    let url = $(this).attr("href"); // take href dynamically
+                    let $this = $(this);
 
                     $.ajax({
                         url: url,
@@ -21,11 +23,13 @@
                             $(".content").html('<div class="p-5 text-center">Loading...</div>');
                         },
                         success: function(data) {
-                            // Inject the returned view into .content
+                            // Inject view into .content
                             $(".content").html(data);
 
                             // Update browser URL without reload
                             window.history.pushState(null, "", url);
+
+
                         },
                         error: function() {
                             $(".content").html(
@@ -35,6 +39,6 @@
                     });
                 });
             });
-        </script> --}}
+        </script>
     @endpush
 @endsection
