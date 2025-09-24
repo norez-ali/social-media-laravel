@@ -26,7 +26,8 @@
                     </div>
 
                     <!-- Form -->
-                    <form action="{{ route('user.store.group') }}" method="POST" class="w-100">
+                    <form id="createGroupForm" action="{{ route('user.store.group') }}" method="POST" class="w-100"
+                        enctype="multipart/form-data">
                         @csrf
 
                         <!-- Group Name -->
@@ -77,6 +78,17 @@
                             @enderror
                         </div>
 
+                        <!-- Cover Photo -->
+                        <div class="mb-4">
+                            <label for="cover_photo" class="form-label fw-bold">Cover Photo</label>
+                            <input type="file"
+                                class="form-control form-control-lg @error('cover_photo') is-invalid @enderror"
+                                id="cover_photo" name="cover_photo" accept="image/*">
+                            @error('cover_photo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <!-- Submit -->
                         <div class="text-end mt-5">
                             <button type="submit" class="btn btn-primary text-white btn-lg px-5 fw-bold rounded-pill">
@@ -84,6 +96,7 @@
                             </button>
                         </div>
                     </form>
+
 
                 </div>
             </div>
@@ -98,24 +111,24 @@
 
             let form = $(this);
             let url = form.attr("action");
-            let formData = form.serialize();
+            let formData = new FormData(this); // use FormData for files
 
             $.ajax({
                 url: url,
                 type: "POST",
                 data: formData,
+                processData: false, // important for file upload
+                contentType: false, // important for file upload
                 success: function(response) {
                     if (response.success) {
-                        // Append the groups index view
+                        // Inject the HTML into the .content div
                         $(".content").html(response.html);
 
-                        // Update URL to /popular-group (without reload)
+                        // Optional: update URL without reload
                         let newUrl = "{{ route('user.popular.group') }}";
                         window.history.pushState({
                             path: newUrl
                         }, "", newUrl);
-
-
                     }
                 },
                 error: function(xhr) {

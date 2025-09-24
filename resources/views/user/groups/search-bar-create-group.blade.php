@@ -7,7 +7,7 @@
     </div>
     @push('scripts')
         <script>
-            $(document).on("click", ".open-create-group", function(e) {
+            $(document).on("click", ".open-group", function(e) {
                 e.preventDefault();
 
                 let url = $(this).attr("href");

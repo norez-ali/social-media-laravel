@@ -13,6 +13,7 @@ class Group extends Model
         'name',
         'description',
         'privacy',
+        'cover_photo'
     ];
     public function creator()
     {
@@ -21,7 +22,7 @@ class Group extends Model
     public function members()
     {
         return $this->belongsToMany(User::class, 'group_user')
-            ->withPivot('role')
+            ->withPivot('role', 'status')
             ->withTimestamps();
     }
     public function posts()

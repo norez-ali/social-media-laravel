@@ -33,7 +33,7 @@
                                       <div class="bg-primary bg-opacity-5 rounded-circle p-3 d-flex align-items-center justify-content-center"
                                           style="width:60px; height:60px;">
                                           <a href="{{ route('user.create.group') }}"
-                                              class="open-create-group d-flex align-items-center justify-content-center w-100 h-100">
+                                              class="open-group d-flex align-items-center justify-content-center w-100 h-100">
                                               <i class="feather-plus text-white"
                                                   style="font-size:2rem; line-height:1;"></i>
                                           </a>
@@ -55,10 +55,13 @@
                                       </div>
 
                                       <!-- Right: Icon -->
-                                      <div
-                                          class="bg-primary bg-opacity-5 rounded-circle p-3 d-flex align-items-center justify-content-center">
-                                          <i class="feather-chevron-right text-white"
-                                              style="font-size:2rem; line-height:1;"></i>
+                                      <div class="bg-primary bg-opacity-5 rounded-circle p-3 d-flex align-items-center justify-content-center"
+                                          style="width:60px; height:60px;">
+                                          <a href="{{ route('user.my.groups') }}"
+                                              class="open-group d-flex align-items-center justify-content-center w-100 h-100">
+                                              <i class="feather-chevron-right text-white"
+                                                  style="font-size:2rem; line-height:1;"></i>
+                                          </a>
                                       </div>
                                   </div>
                               </div>
@@ -113,7 +116,7 @@
 
   @push('scripts')
       <script>
-          $(document).on("click", ".open-create-group", function(e) {
+          $(document).on("click", ".open-group", function(e) {
               e.preventDefault();
 
               let url = $(this).attr("href");

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('group_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('user_id')->constrained()->onDelete('cascade');
             $table->enum('role', ['member', 'admin'])->default('member');
+            $table->enum('status', ['pending', 'approved'])->default('pending');
             $table->timestamps();
 
             $table->unique(['group_id', 'user_id']);

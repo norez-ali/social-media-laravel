@@ -28,16 +28,45 @@ class GroupController extends Controller
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'privacy'     => 'required|in:public,private',
+            'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $group = Group::create([
-            'user_id'     => auth_user()->id,
-            'name'        => $validated['name'],
-            'description' => $validated['description'] ?? null,
-            'privacy'     => $validated['privacy'],
+        $group = new Group();
+        $group->name = $request->name;
+        $group->description = $request->description;
+        $group->privacy = $request->privacy;
+        $group->user_id = auth_user()->id;
+
+        if ($request->hasFile('cover_photo')) {
+            $path = $request->file('cover_photo')->store('groups/covers', 'public');
+            $group->cover_photo = $path;
+        }
+        $group->save();
+        $group->members()->attach(auth_user()->id, ['role' => 'admin', 'status' => 'approved']);
+
+        $html = view('user.groups.search-bar-group')->render();
+        return response()->json([
+            'success' => true,
+            'html' => $html // send the URL
         ]);
+    }
+    public function myGroups(Request $request)
+    {
+        $groups = auth()->user()->groups()->latest()->get();
+        if ($request->ajax()) {
 
+            return view('user.groups.my-groups', get_defined_vars());
+        }
+        return view('user.groups.search-bar-my-groups', get_defined_vars());
+    }
+    public function viewGroup(Request $request, $id)
+    {
+        $group = Group::with(['members' => function ($query) {
+            $query->with('profile'); // if you have a profile relation
+        }])->find($id);
+        // Get the logged-in user’s membership row for this group
+        $currentUser = $group->members->firstWhere('id', auth()->id());
 
-        return redirect()->route('user.popular.group');
+        return view('user.groups.open-group.view-group', get_defined_vars());
     }
 }

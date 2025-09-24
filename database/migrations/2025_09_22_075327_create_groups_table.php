@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->constrained()->onDelete('cascade'); // creator/admin
             $table->string('name');
+            $table->string('cover_photo');
             $table->text('description')->nullable();
             $table->enum('privacy', ['public', 'private'])->default('public');
             $table->timestamps();

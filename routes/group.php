@@ -8,4 +8,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('popular-group', [GroupController::class, 'index'])->name('user.popular.group');
     Route::get('new-group', [GroupController::class, 'create'])->name('user.create.group');
     Route::post('store-group', [GroupController::class, 'store'])->name('user.store.group');
+    Route::get('my-groups', [GroupController::class, 'myGroups'])->name('user.my.groups');
+    Route::get('view-group/{id}', [GroupController::class, 'viewGroup'])->name('user.view.group');
 });
