@@ -120,16 +120,10 @@
                 processData: false, // important for file upload
                 contentType: false, // important for file upload
                 success: function(response) {
-                    if (response.success) {
-                        // Inject the HTML into the .content div
-                        $(".content").html(response.html);
 
-                        // Optional: update URL without reload
-                        let newUrl = "{{ route('user.popular.group') }}";
-                        window.history.pushState({
-                            path: newUrl
-                        }, "", newUrl);
-                    }
+                    //redirect
+                    window.location.href = response.redirect;
+
                 },
                 error: function(xhr) {
                     if (xhr.status === 422) {

@@ -5,15 +5,26 @@ namespace App\Http\Controllers\User\Group;
 use App\Http\Controllers\Controller;
 use App\Models\User\Group\Group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class GroupController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user();
+
+        // Get IDs of groups the user already belongs to
+        $joinedGroupIds = $user->groups()->pluck('groups.id')->toArray();
+
+        // Fetch 10 random groups excluding those
+        $groups = Group::whereNotIn('id', $joinedGroupIds)
+            ->inRandomOrder()
+            ->take(10)
+            ->get();
         if ($request->ajax()) {
-            return view('user.groups.index');
+            return view('user.groups.index', get_defined_vars());
         }
-        return view('user.groups.search-bar-group');
+        return view('user.groups.search-bar-group', get_defined_vars());
     }
     public function create(Request $request)
     {
@@ -44,10 +55,9 @@ class GroupController extends Controller
         $group->save();
         $group->members()->attach(auth_user()->id, ['role' => 'admin', 'status' => 'approved']);
 
-        $html = view('user.groups.search-bar-group')->render();
+
         return response()->json([
-            'success' => true,
-            'html' => $html // send the URL
+            'redirect' => route('user.popular.group'),
         ]);
     }
     public function myGroups(Request $request)
@@ -61,12 +71,59 @@ class GroupController extends Controller
     }
     public function viewGroup(Request $request, $id)
     {
+
         $group = Group::with(['members' => function ($query) {
             $query->with('profile'); // if you have a profile relation
         }])->find($id);
         // Get the logged-in user’s membership row for this group
         $currentUser = $group->members->firstWhere('id', auth()->id());
+        if ($request->ajax()) {
+            return view('user.groups.open-group.view-group', get_defined_vars());
+        }
+        return view('user.groups.open-group.search-bar-view-group', get_defined_vars());
+    }
+    public function destroy($groupId)
+    {
+        $group = Group::with('members')->findOrFail($groupId);
+        $path = str_replace('storage/', '', $group->cover_photo);
+        // Delete cover photo if exists
+        if (Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
 
-        return view('user.groups.open-group.view-group', get_defined_vars());
+        // Detach all members
+        $group->members()->detach();
+
+        // Delete the group itself
+        $group->delete();
+
+        return response()->json([
+            'message' => 'Group deleted successfully.',
+            'redirect' => route('user.popular.group'),
+        ]);
+    }
+    public function updateCover(Request $request, $id)
+    {
+        $group = Group::findOrFail($id);
+
+        if ($group->cover_photo) {
+            // Remove any "storage/" prefix just in case
+            $path = str_replace('storage/', '', $group->cover_photo);
+
+            // Delete cover photo if exists
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+
+            // Save new one
+            $path = $request->file('cover_photo')->store('groups/covers', 'public');
+            $group->cover_photo = $path;
+            $group->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'cover_photo_url' => asset('storage/' . $group->cover_photo),
+        ]);
     }
 }

@@ -7,7 +7,7 @@
                   <div class="col-xl-12">
                       <div class="card shadow-xss w-100 d-block d-flex border-0 p-4 mb-3">
                           <div class="card-body d-flex align-items-center p-0">
-                              <h2 class="fw-700 mb-0 mt-0 font-md text-grey-900">Group</h2>
+                              <h2 class="fw-700 mb-0 mt-0 font-md text-grey-900">Groups</h2>
                               <div class="search-form-2 ms-auto">
                                   <i class="ti-search font-xss"></i>
                                   <input type="text"
@@ -45,13 +45,14 @@
                           </div>
 
 
+
                           <div class="col-md-6 col-sm-6 pe-2 ps-2">
                               <div class="card border-0 shadow-sm rounded-4 mb-4">
                                   <div class="card-body d-flex align-items-center justify-content-between p-4">
                                       <!-- Left: Title -->
                                       <div>
                                           <h4 class="fw-bold mb-0 text-dark">My Groups</h4>
-                                          <p class="text-muted small mb-0">See the groups you’re a admin of</p>
+                                          <p class="text-muted small mb-0">See the groups you’re a member of</p>
                                       </div>
 
                                       <!-- Right: Icon -->
@@ -67,27 +68,68 @@
                               </div>
 
                           </div>
-                          <div class="col-md-6 col-sm-6 pe-2 ps-2">
-                              <div class="card d-block border-0 shadow-xss rounded-3 overflow-hidden mb-3">
-                                  <div class="card-body position-relative h100 bg-image-cover bg-image-center"
-                                      style="background-image: url(images/e-4.jpg);"></div>
-                                  <div class="card-body d-block w-100 pl-10 pe-4 pb-4 pt-0 text-left position-relative">
-                                      <figure class="avatar position-absolute w75 z-index-1"
-                                          style="top:-40px; left: 15px;"><img src="images/user_1.png" alt="image"
-                                              class="float-right p-1 bg-white rounded-circle w-100"></figure>
-                                      <div class="clearfix"></div>
-                                      <h4 class="fw-700 font-xsss mt-3 mb-1">Surfiya Zakir</h4>
-                                      <p class="fw-500 font-xsssss text-grey-500 mt-0 mb-3">support@gmail.com</p>
-                                      <span class="position-absolute right-15 top-0 d-flex align-items-center">
-                                          <a href="#" class="d-lg-block d-none"><i
-                                                  class="feather-video btn-round-md font-md bg-primary-gradiant text-white"></i></a>
-                                          <a href="#"
-                                              class="text-center p-2 lh-24 w100 ms-1 ls-3 d-inline-block rounded-xl bg-current font-xsssss fw-700 ls-lg text-white">FOLLOW</a>
-                                      </span>
-                                  </div>
-                              </div>
+                          {{-- Explore groups banner --}}
+                          <div class="w-fit mb-4 px-2">
+                              <h2 class="fw-bold text-lg text-gray-800 border-b border-gray-200 pb-1"> Explore Groups
+                              </h2>
                           </div>
 
+                          @isset($groups)
+                              @forelse ($groups as $group)
+                                  <div class="col-md-3 col-sm-6 mb-3">
+                                      <div class="card border-0 shadow-xss rounded-3 overflow-hidden h-100">
+
+                                          <!-- Image Cover -->
+                                          <div class="card-img-top position-relative"
+                                              style="height:180px; overflow:hidden;">
+                                              <img src="{{ $group->cover_photo && $group->cover_photo
+                                                  ? asset('storage/' . $group->cover_photo)
+                                                  : asset('assets/images/user-12.png') }}"
+                                                  class="w-100 h-100 object-fit object-cover object-top"
+                                                  alt="profile-photo">
+                                          </div>
+
+
+
+                                          <!-- Body -->
+                                          <div class="card-body text-center">
+                                              <!-- Name -->
+                                              <h4 class="fw-700 font-xsss mt-3 mb-3">{{ $group->name }}
+                                                  <span
+                                                      class="d-block font-xssss fw-500 mt-1 lh-3 text-grey-500">{{ $group->privacy }}</span>
+                                              </h4>
+
+
+
+
+                                              <!-- Buttons -->
+                                              <div class="d-flex justify-content-between">
+                                                  @if ($group->privacy === 'public')
+                                                      <a href="{{ route('user.join.group', $group->id) }}"
+                                                          data-leave-url="{{ route('user.leave.group', $group->id) }}"
+                                                          class="join-group text-center p-2 flex-fill me-1 d-inline-flex align-items-center justify-content-center rounded-lg bg-primary font-xsssss fw-700 text-white"
+                                                          data-id="{{ $group->id }}">
+                                                          Join
+                                                      </a>
+                                                  @else
+                                                      <a href="{{ route('user.join.group', $group->id) }}"
+                                                          data-leave-url="{{ route('user.leave.group', $group->id) }}"
+                                                          class="join-group text-center p-2 flex-fill me-1 d-inline-flex align-items-center justify-content-center rounded-lg bg-primary font-xsssss fw-700 text-white"
+                                                          data-id="{{ $group->id }}">
+                                                          Request to Join
+                                                      </a>
+                                                  @endif
+
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              @empty
+                                  <div class="mb-3">
+                                      <h2> No Groups to show</h2>
+                                  </div>
+                              @endforelse
+                          @endisset
 
 
 
@@ -147,6 +189,68 @@
                   type: "GET",
                   success: function(response) {
                       $(".content").html(response);
+                  }
+              });
+          });
+          //for joining group
+          $(document).on("click", ".join-group", function(e) {
+              e.preventDefault();
+
+              let button = $(this);
+              let url = button.attr("href");
+              let groupId = button.data("id");
+
+              $.ajax({
+                  url: url,
+                  type: "POST",
+                  data: {
+                      _token: $('meta[name="csrf-token"]').attr("content"),
+                  },
+                  success: function(response) {
+                      if (response.status === "approved") {
+                          // Public group → instantly joined
+                          button.text("Leave")
+                              .removeClass("bg-primary")
+                              .addClass("bg-dark text-white leave-group");
+                      } else if (response.status === "pending") {
+                          // Private group → request sent
+                          button.text("Withdraw Request")
+                              .removeClass("bg-primary")
+                              .addClass("bg-dark text-white leave-group");
+                      }
+                  },
+                  error: function(xhr) {
+                      console.error(xhr.responseText);
+                      alert("Something went wrong!");
+                  }
+              });
+          });
+          // Leave group
+          $(document).on("click", ".leave-group", function(e) {
+              e.preventDefault();
+
+              let button = $(this);
+              let url = button.data("leave-url"); // Set in Blade
+
+              $.ajax({
+                  url: url,
+                  type: "DELETE",
+                  data: {
+                      _token: $('meta[name="csrf-token"]').attr("content"),
+                  },
+                  success: function(response) {
+                      if (response.success) {
+                          // Decide new button text based on privacy
+                          let newText = response.privacy === "public" ? "Join" : "Request to Join";
+
+                          button.text(newText)
+                              .removeClass("bg-dark leave-group withdraw-request")
+                              .addClass("bg-primary join-group");
+                      }
+                  },
+                  error: function(xhr) {
+                      console.error(xhr.responseText);
+                      alert("Something went wrong!");
                   }
               });
           });
