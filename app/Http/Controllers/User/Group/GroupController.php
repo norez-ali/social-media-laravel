@@ -77,6 +77,7 @@ class GroupController extends Controller
         }])->find($id);
         // Get the logged-in user’s membership row for this group
         $currentUser = $group->members->firstWhere('id', auth()->id());
+        // Get all pending join requests for THIS group only
         if ($request->ajax()) {
             return view('user.groups.open-group.view-group', get_defined_vars());
         }

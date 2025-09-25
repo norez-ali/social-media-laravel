@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User\Group;
 use App\Http\Controllers\Controller;
 use App\Models\User\Group\Group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class GroupMemberController extends Controller
 {
@@ -52,5 +53,70 @@ class GroupMemberController extends Controller
             'status' => 'not_member',
             'message' => 'You are not a member of this group.',
         ], 400);
+    }
+    public function viewRequests($groupId, Request $request)
+    {
+        // Find group with members
+        $group = Group::with('members.profile')->findOrFail($groupId);
+
+        // Ensure logged-in user is an admin of this group
+        $isAdmin = $group->members()
+            ->wherePivot('role', 'admin')
+            ->where('users.id', auth()->id())
+            ->exists();
+
+        if (!$isAdmin) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Get only pending requests
+        $pendingRequests = $group->members()
+            ->wherePivot('status', 'pending')
+            ->with('profile')
+            ->get();
+
+
+
+        return view('user.groups.open-group.nav.requests', compact('group', 'pendingRequests'));
+    }
+    public function approve(Request $request)
+    {
+        $data = $request->validate([
+            'group_id' => 'required|exists:groups,id',
+            'user_id'  => 'required|exists:users,id',
+        ]);
+
+        $group = Group::findOrFail($data['group_id']);
+        $currentUser = $group->members->firstWhere('id', Auth::id());
+
+        if (!$currentUser || $currentUser->pivot->role !== 'admin') {
+            return response()->json(['error' => 'Unauthorized.'], 403);
+        }
+
+        // Update status on the pivot
+        $group->members()->updateExistingPivot($data['user_id'], [
+            'status' => 'approved',
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Request approved successfully.']);
+    }
+    public function reject(Request $request)
+    {
+        $data = $request->validate([
+            'group_id' => 'required|exists:groups,id',
+            'user_id'  => 'required|exists:users,id',
+        ]);
+
+        $group = Group::findOrFail($data['group_id']);
+        $currentUser = $group->members->firstWhere('id', Auth::id());
+
+        if (!$currentUser || $currentUser->pivot->role !== 'admin') {
+            return response()->json(['error' => 'Unauthorized.'], 403);
+        }
+
+        // Detach the user from the group (removes pivot row)
+        $group->members()->detach($data['user_id']);
+
+        return response()->json(['success' => true, 'message' => 'Request rejected successfully.']);
     }
 }

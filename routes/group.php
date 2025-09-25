@@ -17,4 +17,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //route for joining the group
     Route::post('join-group/{groupId}', [GroupMemberController::class, 'join'])->name('user.join.group');
     Route::delete('leave-group/{groupId}', [GroupMemberController::class, 'leave'])->name('user.leave.group');
+    //for viewing pending requests for group admins
+    Route::get('view-requests/{groupId}', [GroupMemberController::class, 'viewRequests'])->name('admin.view.requests');
+    //for accepting request and rejecting request
+    Route::post('approve-request', [GroupMemberController::class, 'approve'])
+        ->name('user.approve.request');
+    Route::post('reject-request', [GroupMemberController::class, 'reject'])->name('user.reject.request');
 });

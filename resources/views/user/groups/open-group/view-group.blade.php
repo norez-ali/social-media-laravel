@@ -69,7 +69,7 @@
                                      {{-- Pending approval --}}
                                      <a href="{{ route('user.join.group', $group->id) }}"
                                          data-leave-url="{{ route('user.leave.group', $group->id) }}"
-                                         class="leave-group bg-success text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90">
+                                         class="leave-group bg-dark text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90">
                                          Withdraw Request
                                      </a>
                                  @elseif ($currentUser->pivot->status === 'approved')
@@ -140,7 +140,8 @@
                                      <li class="list-inline-item me-5">
                                          <a id="tab-requests"
                                              class="link fw-700 font-xssss text-grey-500 pt-3 pb-3 ls-1 d-inline-block"
-                                             href="" data-toggle="tab">Requests</a>
+                                             href="{{ route('admin.view.requests', $group->id) }}"
+                                             data-toggle="tab">Requests</a>
                                      </li>
                                  @endif
                              </ul>
@@ -164,6 +165,7 @@
                      @elseif ($currentUser->pivot->status === 'approved')
                          <div id="tabContent" class="mt-3">
                              <h4 class="ml-4 text-black text-base font-semibold">See posts</h4>
+
                              {{-- posts listing goes here --}}
                          </div>
                      @endif
@@ -184,6 +186,38 @@
  </div>
  @push('scripts')
      <script>
+         //for toggling tabs
+         $(document).ready(function() {
+             $(".nav-tabs a").on("click", function(e) {
+                 e.preventDefault();
+
+                 var url = $(this).attr("href"); // get href
+                 if (!url || url.startsWith("#")) return; // skip empty or #
+
+                 // remove active class
+                 $(".nav-tabs a").removeClass("active");
+                 $(this).addClass("active");
+
+                 // show loader
+                 $("#tabContent").html('<div class="text-center p-5">Loading...</div>');
+
+                 // AJAX request
+                 $.ajax({
+                     url: url,
+                     type: "GET",
+                     success: function(response) {
+                         $("#tabContent").html(response);
+                     },
+                     error: function() {
+                         $("#tabContent").html(
+                             '<div class="text-danger p-3">Failed to load content.</div>');
+                     }
+                 });
+             });
+
+             // Optional: load first tab automatically
+             $(".nav-tabs a.active").trigger("click");
+         });
          //for joining group
          $(document).on("click", ".join-group", function(e) {
              e.preventDefault();
@@ -299,6 +333,50 @@
                  error: function(xhr) {
                      console.error(xhr.responseText);
                      alert("Something went wrong while updating cover photo!");
+                 }
+             });
+         });
+         //approve the request
+         $(document).on("click", ".approve-request", function(e) {
+             e.preventDefault();
+
+             let groupId = $(this).data("group-id");
+             let userId = $(this).data("user-id");
+             $.ajax({
+                 url: "{{ route('user.approve.request') }}", // your Laravel route
+                 type: "POST",
+                 data: {
+                     _token: $('meta[name="csrf-token"]').attr("content"),
+                     group_id: groupId,
+                     user_id: userId
+                 },
+                 success: function(res) {
+
+
+                 },
+                 error: function(xhr) {
+                     console.error(xhr.responseText);
+                 }
+             });
+         });
+
+         // Reject group join request
+         // Reject
+         $(document).on("click", ".reject-request", function(e) {
+             e.preventDefault();
+             let groupId = $(this).data("group-id");
+             let userId = $(this).data("user-id");
+
+             $.ajax({
+                 url: "{{ route('user.reject.request') }}",
+                 type: "POST",
+                 data: {
+                     _token: $('meta[name="csrf-token"]').attr("content"),
+                     group_id: groupId,
+                     user_id: userId
+                 },
+                 success: function(res) {
+                     $(e.target).closest(".card").remove();
                  }
              });
          });
