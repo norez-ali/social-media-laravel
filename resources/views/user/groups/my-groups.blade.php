@@ -55,11 +55,12 @@
 
                                         <div class="card-body p-0 d-flex">
                                             <i class="feather-users text-grey-500 me-3 font-lg"></i>
-                                            <h4 class="fw-600 text-grey-900 font-xssss mt-0 me-4">
-                                                <a href="{{ route('user.view.group', $group->id) }}" class="open-group">
-                                                    view Group
-                                                </a>
-                                            </h4>
+
+                                            <a href="{{ route('user.view.group', $group->id) }}"
+                                                class="open-group fw-600 text-grey-900 font-xssss mt-0 me-4">
+                                                view Group
+                                            </a>
+
                                         </div>
                                         <div class="card-body p-0 d-flex">
                                             <i class="feather-bookmark text-grey-500 me-3 font-lg"></i>
@@ -70,8 +71,13 @@
                                         <div class="card-body p-0 d-flex mt-2">
                                             @if ($group->pivot->role === 'admin')
                                                 <i class="feather-trash text-grey-500 me-3 font-lg"></i>
-                                                <h4 class="fw-600 text-grey-900 font-xssss mt-0 me-4">Delete Group
-                                                </h4>
+                                                <a href="{{ route('admin.delete.group', $group->id) }}"
+                                                    data-url="{{ route('admin.delete.group', $group->id) }}"
+                                                    class="delete-group fw-600 text-grey-900 font-xssss mt-0 me-4 ">
+
+                                                    Delete Group
+
+                                                </a>
                                             @else
                                                 <i class="feather-alert-circle text-grey-500 me-3 font-lg"></i>
                                                 <h4 class="fw-600 text-grey-900 font-xssss mt-0 me-4">Leave Group
@@ -134,6 +140,33 @@
                 type: "GET",
                 success: function(response) {
                     $(".content").html(response);
+                }
+            });
+        });
+        //deleting the group
+        $(document).on("click", ".delete-group", function(e) {
+            e.preventDefault();
+
+
+
+            let button = $(this);
+            let url = button.data("url");
+
+            $.ajax({
+                url: url,
+                type: "DELETE",
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr("content"),
+                },
+                success: function(response) {
+
+
+                    // Redirect after successful delete
+                    window.location.href = response.redirect;
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                    alert("Something went wrong!");
                 }
             });
         });

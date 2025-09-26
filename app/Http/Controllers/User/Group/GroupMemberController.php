@@ -119,4 +119,21 @@ class GroupMemberController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Request rejected successfully.']);
     }
+    public function viewMembers($groupId, Request $request)
+    {
+        // Load group with members (only approved)
+        $group = Group::with(['members' => function ($query) {
+            $query->wherePivot('status', 'approved')
+                ->with('profile'); // if you have a profile relation
+        }])->findOrFail($groupId);
+        $currentUser = $group->members->firstWhere('id', auth()->id());
+
+        // Get approved members
+        $members = $group->members;
+
+
+
+        // Default full-page view
+        return view('user.groups.open-group.nav.members', get_defined_vars());
+    }
 }

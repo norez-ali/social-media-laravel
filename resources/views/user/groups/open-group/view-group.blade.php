@@ -102,12 +102,14 @@
 
                                  <li class="active list-inline-item me-5">
                                      <a class="link fw-700 font-xssss text-grey-500 pt-3 pb-3 ls-1 d-inline-block active"
-                                         href="" id="about_section" data-toggle="tab">About</a>
+                                         href="" id="discussion" data-toggle="tab">Discussion</a>
                                  </li>
 
                                  <li class="list-inline-item me-5">
-                                     <a class="link fw-700 font-xssss text-grey-500 pt-3 pb-3 ls-1 d-inline-block"
-                                         href="" data-toggle="tab">Friends</a>
+                                     <a id="tab-members"
+                                         class="link fw-700 font-xssss text-grey-500 pt-3 pb-3 ls-1 d-inline-block"
+                                         href="{{ route('group.view.members', $group->id) }}"
+                                         data-toggle="tab">Members</a>
                                  </li>
 
                                  <li class="list-inline-item me-5">
@@ -164,14 +166,14 @@
                          </div>
                      @elseif ($currentUser->pivot->status === 'approved')
                          <div id="tabContent" class="mt-3">
-                             <h4 class="ml-4 text-black text-base font-semibold">See posts</h4>
+                             @include('user.profile.nav.about')
 
                              {{-- posts listing goes here --}}
                          </div>
                      @endif
                  @else
                      <div id="tabContent" class="mt-3">
-                         <h4 class="ml-4 text-black text-base font-semibold">See posts</h4>
+                         @include('user.profile.nav.about')
                          {{-- posts listing goes here --}}
                      </div>
                  @endif
@@ -284,9 +286,7 @@
          $(document).on("click", ".delete-group", function(e) {
              e.preventDefault();
 
-             if (!confirm("Are you sure you want to delete this group?")) {
-                 return;
-             }
+
 
              let button = $(this);
              let url = button.data("url");
@@ -298,7 +298,6 @@
                      _token: $('meta[name="csrf-token"]').attr("content"),
                  },
                  success: function(response) {
-                     alert(response.message);
 
                      // Redirect after successful delete
                      window.location.href = response.redirect;
@@ -352,7 +351,7 @@
                  },
                  success: function(res) {
 
-
+                     $(e.target).closest(".card").remove();
                  },
                  error: function(xhr) {
                      console.error(xhr.responseText);

@@ -254,5 +254,34 @@
                   }
               });
           });
+          //deleting the group
+          $(document).on("click", ".delete-group", function(e) {
+              e.preventDefault();
+
+              if (!confirm("Are you sure you want to delete this group?")) {
+                  return;
+              }
+
+              let button = $(this);
+              let url = button.data("url");
+
+              $.ajax({
+                  url: url,
+                  type: "DELETE",
+                  data: {
+                      _token: $('meta[name="csrf-token"]').attr("content"),
+                  },
+                  success: function(response) {
+                      alert(response.message);
+
+                      // Redirect after successful delete
+                      window.location.href = response.redirect;
+                  },
+                  error: function(xhr) {
+                      console.error(xhr.responseText);
+                      alert("Something went wrong!");
+                  }
+              });
+          });
       </script>
   @endpush
